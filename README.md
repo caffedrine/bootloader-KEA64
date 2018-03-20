@@ -6,4 +6,6 @@ Refference: https://www.nxp.com/docs/en/reference-manual/KBTLDR200RM.pdf
 
 Documentation: https://www.nxp.com/pip/MCUBOOT?tab=Documentation_Tab
 
+S9KEAZN64AMLH: https://www.nxp.com/docs/en/application-note/AN4942.pdf
+
 To be continued...
