@@ -5,6 +5,10 @@
 
 **Recommended IDE**: [KDS_IDE](https://www.nxp.com/products/wireless-connectivity/proprietary-ieee-802.15.4-based/kinetis-design-studio-integrated-development-environment-ide:KDS_IDE)
 
+## Pre-requirements:
+
+  * Python needs to be installed and available in console/cmd;
+
 ## Bootloader
 
   * Refference: https://www.nxp.com/docs/en/reference-manual/KBTLDR200RM.pdf
