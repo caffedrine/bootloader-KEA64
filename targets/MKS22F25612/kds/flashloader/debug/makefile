@@ -79,7 +79,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-C:\Workspaces\KDS\FSL_Kinetis_Bootloader_1_2_0_KS22_1_0_0\targets\MKS22F25612\kds\flashloader\debug\..\..\..\..\..\bin\create_flashloader_image_kds.bat C:\Workspaces\KDS\FSL_Kinetis_Bootloader_1_2_0_KS22_1_0_0\targets\MKS22F25612\kds\flashloader\debug '..'
+	-C:\Workspaces\KDS\bootloader-S9KEAZN64AMLH\targets\MKS22F25612\kds\flashloader\debug\..\..\..\..\..\bin\create_flashloader_image_kds.bat C:\Workspaces\KDS\bootloader-S9KEAZN64AMLH\targets\MKS22F25612\kds\flashloader\debug '..'
 	-@echo ' '
 
 secondary-outputs:
