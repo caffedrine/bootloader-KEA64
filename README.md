@@ -1,7 +1,7 @@
 ## S9KEAZN64AMLH - Custom bootloader
 
-E Series Bootloader info: https://www.nxp.com/docs/en/application-note/AN5400.pdf
-KEA Manuals: https://www.nxp.com/products/processors-and-microcontrollers/arm-based-processors-and-mcus/kinetis-cortex-m-mcus/ea-series-automotive-m0-plus/ultra-reliable-kea-automotive-microcontrollers-mcus-based-on-arm-cortex-m0-plus-core:KEA?&tab=Documentation_Tab&linkline=Application-Note
+  * E Series Bootloader info: https://www.nxp.com/docs/en/application-note/AN5400.pdf
+  * KEA Manuals: !(here)[https://www.nxp.com/products/processors-and-microcontrollers/arm-based-processors-and-mcus/kinetis-cortex-m-mcus/ea-series-automotive-m0-plus/ultra-reliable-kea-automotive-microcontrollers-mcus-based-on-arm-cortex-m0-plus-core:KEA?&tab=Documentation_Tab&linkline=Application-Note]
 
 ## Bootloader
 
