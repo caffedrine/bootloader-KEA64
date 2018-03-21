@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\MAPS\led_demo_MAPS-KS22F25612.ewp</path>
+  </project>
+  <batchBuild>
+    <batchDefinition>
+      <name>All Configurations</name>
+      <member>
+        <project>led_demo_MAPS-KS22F25612</project>
+        <configuration>Debug_0000</configuration>
+      </member>
+      <member>
+        <project>led_demo_MAPS-KS22F25612</project>
+        <configuration>Debug_a000</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
+</workspace>
+
+
