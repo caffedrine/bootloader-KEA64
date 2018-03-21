@@ -1,5 +1,7 @@
 ## S9KEAZN64AMLH - Custom bootloader
 
+E Series Bootloader info: https://www.nxp.com/docs/en/application-note/AN4775.pdf
+
 ## Bootloader
 
   * Refference: https://www.nxp.com/docs/en/reference-manual/KBTLDR200RM.pdf
