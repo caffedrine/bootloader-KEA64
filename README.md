@@ -21,5 +21,6 @@
 
 ## To read:
   * Simple Serial Bootloader: https://community.nxp.com/docs/DOC-335384
+  * How to support multiple targets in CodeWarrior(Classic, Eclipse)/KDS: https://community.nxp.com/docs/DOC-332027
 
 To be continued...
