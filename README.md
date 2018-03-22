@@ -3,7 +3,7 @@
   * E Series Bootloader info: https://www.nxp.com/docs/en/application-note/AN5400.pdf
   * KEA Manuals: [https://www.nxp.com/products/...](https://www.nxp.com/products/processors-and-microcontrollers/arm-based-processors-and-mcus/kinetis-cortex-m-mcus/ea-series-automotive-m0-plus/ultra-reliable-kea-automotive-microcontrollers-mcus-based-on-arm-cortex-m0-plus-core:KEA?&tab=Documentation_Tab&linkline=Application-Note)
 
-**Recommended IDE**: [KDS_IDE](https://www.nxp.com/products/wireless-connectivity/proprietary-ieee-802.15.4-based/kinetis-design-studio-integrated-development-environment-ide:KDS_IDE)
+**Recommended IDEs**: The bootloader was default build using IAR / KEIL / [KDS](https://www.nxp.com/products/wireless-connectivity/proprietary-ieee-802.15.4-based/kinetis-design-studio-integrated-development-environment-ide:KDS_IDE) -> so don't even try to open project with CodeWarrior, MCUEXpresso etc.
 
 ## Pre-requirements:
 
