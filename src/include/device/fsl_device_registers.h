@@ -1615,7 +1615,17 @@
     #include "device/MKS22F25612/MKS22F25612_extension.h"
     /* CPU specific feature definitions */
     #include "device/MKS22F25612/MKS22F25612_features.h"
+	
+#elif (defined(CPU_S9KEAZN64AMLH))
+	
+	#define SKEAZ1284_SERIES
 
+	/* CMSIS-style register definitions */
+    #include "device/SKEAZ1284/SKEAZ1284.h"
+    /* Extension register definitions */
+    #include "device/SKEAZ1284/SKEAZ1284_extension.h"
+    /* CPU specific feature definitions */
+    #include "device/SKEAZ1284/SKEAZ1284_features.h"
 #else
     #error "No valid CPU defined!"
 #endif

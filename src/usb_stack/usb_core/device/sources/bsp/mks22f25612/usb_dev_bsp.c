@@ -168,8 +168,17 @@ int32_t bsp_usb_dev_init(uint8_t controller_id)
 #else
 #if !defined (K22F12810_SERIES) && !defined (KS22F25612_SERIES)
         /* Configure enable USB regulator for device */
-        SIM_SOPT1CFG_REG(SIM_BASE_PTR) |= SIM_SOPT1CFG_URWE_MASK;
-        SIM_SOPT1_REG(SIM_BASE_PTR) |= SIM_SOPT1_USBREGEN_MASK;
+
+        // Original:
+        //SIM_SOPT1CFG_REG(SIM_BASE_PTR) |= SIM_SOPT1CFG_URWE_MASK;
+        //SIM_SOPT1_REG(SIM_BASE_PTR) |= SIM_SOPT1_USBREGEN_MASK;
+
+        //Edited @ Alex:
+
+		#define SIM_SOPT1_USBREGEN_MASK                  (0x80000000u)
+		#define SIM_SOPT1CFG_URWE_MASK                   (0x1000000u)
+        //SIM_SOPT1CFG_REG(SIM_BASE_PTR) = (SIM_SOPT1CFG_REG(SIM_BASE_PTR)) | (SIM_SOPT1CFG_URWE_MASK);
+        //SIM_SOPT1_REG(SIM_BASE_PTR) |= SIM_SOPT1_USBREGEN_MASK;
 #endif
         /* reset USB CTRL register */
         USB_CONTROL_REG(USB0_BASE_PTR) = (0);
