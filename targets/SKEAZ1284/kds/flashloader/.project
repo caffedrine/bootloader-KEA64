@@ -66,12 +66,12 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/hardware_init_SKEAZ1284.c</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/memory_map_KS22F25612.c</name>
+			<name>SKEAZ1284/memory_map_SKEAZ1284.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/memory_map_SKEAZ1284.c</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/peripherals_KS22F25612.c</name>
+			<name>SKEAZ1284/peripherals_SKEAZ1284.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/peripherals_SKEAZ1284.c</locationURI>
 		</link>

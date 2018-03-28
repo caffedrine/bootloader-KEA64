@@ -121,7 +121,7 @@
  *************************************************************************/
 #define TERM_PORT_NUM       0
 
-#define TERMINAL_BAUD       19200
+#define TERMINAL_BAUD       38400
 #undef  HW_FLOW_CONTROL
 
 

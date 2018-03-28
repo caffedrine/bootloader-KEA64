@@ -35,16 +35,16 @@
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
 
-//! @brief Memory map for KS22F256
+//! @brief Memory map for SKEAZ1284
 //!
 //! This map is not const because it is updated at runtime with the actual sizes of
 //! flash and RAM for the chip we're running on.
 memory_map_entry_t g_memoryMap[] = {
-    { 0x00000000, 0x0003ffff, &g_flashMemoryInterface },   // Flash array (256KB)
-    { 0x1fffc000, 0x2000bfff, &g_normalMemoryInterface },  // SRAM (64KB)
+    { 0x10000000, 0x100000ff, &g_flashMemoryInterface },   // Flash array
+    { 0x1ffffc00, 0x20000bff, &g_normalMemoryInterface },  // SRAM
     { 0x40000000, 0x4007ffff, &g_deviceMemoryInterface },  // AIPS peripherals
     { 0x400ff000, 0x400fffff, &g_deviceMemoryInterface },  // GPIO
-    { 0xe0000000, 0xe00fffff, &g_deviceMemoryInterface },  // M4 private peripherals
+    { 0xe0000000, 0xe00fffff, &g_deviceMemoryInterface },  // M0Plus private peripherals
     { 0 } // Terminator
 };
 
