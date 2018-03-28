@@ -181,6 +181,7 @@ SECTIONS
   } > m_data
 
   __StackTop   = .;
+  __STACK_TOP = .;
   __StackLimit = __StackTop - STACK_SIZE;
   PROVIDE(__stack = __StackTop);
 

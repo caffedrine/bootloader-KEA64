@@ -195,7 +195,7 @@ status_t bootloader_property_init(void)
 #elif (defined(__GNUC__))
     extern uint32_t __VECTOR_RAM[];
     extern uint32_t __VECTOR_TABLE[];
-    extern char __DATA_END[];;
+    extern char __DATA_END[];
     extern uint32_t __STACK_TOP[];
 #if !BL_TARGET_FLASH
     flashStart = 0;
