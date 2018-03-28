@@ -471,6 +471,9 @@ static void bootloader_run(void)
 //! @brief Entry point for the bootloader.
 void main(void)
 {
+    debug_printf("Bootloader loaded and started ^_^\r\n");
+	int a = 1;
+
     bootloader_init();
     bootloader_run();
 
