@@ -51,11 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-
-# Custom
-
-debug/
-release/
+### Custom ###
 
 # Prevent bootloader logs
 *.log
