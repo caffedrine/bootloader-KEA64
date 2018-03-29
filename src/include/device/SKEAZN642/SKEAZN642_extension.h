@@ -59,7 +59,7 @@
 #ifndef __MKS22F25612_EXTENSION_H__
 #define __MKS22F25612_EXTENSION_H__
 
-#include "SKEAZ1284.h"
+#include "SKEAZN642.h"
 #include "fsl_bitaccess.h"
 
 /*

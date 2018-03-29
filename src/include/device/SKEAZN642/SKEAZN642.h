@@ -66,9 +66,9 @@
    ---------------------------------------------------------------------------- */
 
 /* Prevention from multiple including the same memory map */
-#if !defined(SKEAZ1284_H_)  /* Check if memory map has not been already included */
-#define SKEAZ1284_H_
-#define MCU_SKEAZ1284
+#if !defined(SKEAZN642_H_)  /* Check if memory map has not been already included */
+#define SKEAZN642_H_
+#define MCU_SKEAZN642
 
 /* Check if another memory map has not been also included */
 #if (defined(MCU_ACTIVE))
@@ -273,7 +273,7 @@ typedef enum IRQn {
 #define __VTOR_PRESENT                 1         /**< Defines if an MPU is present or not */
 
 #include "core_cm0plus.h"                  /* Core Peripheral Access Layer */
-#include "system_SKEAZ1284.h"        /* Device specific configuration file */
+#include "system_SKEAZN642.h"        /* Device specific configuration file */
 
 /*!
  * @}

@@ -50,7 +50,7 @@ const peripheral_descriptor_t g_peripherals[] = {
     // UART1
     {
         .typeMask = kPeripheralType_UART,
-        .instance = 0,
+        .instance = 1,
         .pinmuxConfig = uart_pinmux_config,
         .controlInterface = &g_scuartControlInterface,
         .byteInterface = &g_scuartByteInterface,

@@ -1618,14 +1618,14 @@
 	
 #elif (defined(CPU_S9KEAZN64AMLH))
 	
-	#define SKEAZ1284_SERIES
+	#define SKEAZN642_SERIES
 
 	/* CMSIS-style register definitions */
-    #include "device/SKEAZ1284/SKEAZ1284.h"
+    #include "device/SKEAZN642/SKEAZN642.h"
     /* Extension register definitions */
-    #include "device/SKEAZ1284/SKEAZ1284_extension.h"
+    #include "device/SKEAZN642/SKEAZN642_extension.h"
     /* CPU specific feature definitions */
-    #include "device/SKEAZ1284/SKEAZ1284_features.h"
+    #include "device/SKEAZN642/SKEAZN642_features.h"
 #else
     #error "No valid CPU defined!"
 #endif

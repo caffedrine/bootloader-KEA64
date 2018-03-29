@@ -31,7 +31,7 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>SKEAZ1284</name>
+			<name>SKEAZN642</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -41,44 +41,44 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/bl_dspi_irq_config_common.c</name>
+			<name>SKEAZN642/bl_dspi_irq_config_common.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/common/src/bl_dspi_irq_config_common.c</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/bl_lpi2c_irq_config_common.c</name>
+			<name>SKEAZN642/bl_lpi2c_irq_config_common.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/common/src/bl_lpi2c_irq_config_common.c</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/bootloader_config.h</name>
+			<name>SKEAZN642/bootloader_config.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/bootloader_config.h</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/clock_config_SKEAZ1284.c</name>
+			<name>SKEAZN642/clock_config_SKEAZN642.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/clock_config_SKEAZ1284.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/clock_config_SKEAZN642.c</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/hardware_init_SKEAZ1284.c</name>
+			<name>SKEAZN642/hardware_init_SKEAZN642.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/hardware_init_SKEAZ1284.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/hardware_init_SKEAZN642.c</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/memory_map_SKEAZ1284.c</name>
+			<name>SKEAZN642/memory_map_SKEAZN642.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/memory_map_SKEAZ1284.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/memory_map_SKEAZN642.c</locationURI>
 		</link>
 		<link>
-			<name>SKEAZ1284/peripherals_SKEAZ1284.c</name>
+			<name>SKEAZN642/peripherals_SKEAZN642.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/peripherals_SKEAZ1284.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/peripherals_SKEAZN642.c</locationURI>
 		</link>
 		<link>
-			<name>link/MKS22FN256xxx12_ram_flashloader.ld</name>
+			<name>link/SKEAZN64xxx2_ram_flashloader.ld</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/common/linker/kds/SKEAZ1284/SKEAZ128xxx4_ram_flashloader.ld</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/common/linker/kds/SKEAZN642/SKEAZN64xxx2_ram_flashloader.ld</locationURI>
 		</link>
 		<link>
 			<name>src/autobaud</name>
@@ -311,14 +311,14 @@
 			<locationURI>PARENT-4-PROJECT_LOC/src/startup/startup.c</locationURI>
 		</link>
 		<link>
-			<name>src/startup/startup_SKEAZ1284.S</name>
+			<name>src/startup/startup_SKEAZN642.S</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/startup/gcc/startup_SKEAZ1284.S</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/startup/gcc/startup_SKEAZN642.S</locationURI>
 		</link>
 		<link>
-			<name>src/startup/system_SKEAZ1284.c</name>
+			<name>src/startup/system_SKEAZN642.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/startup/system_SKEAZ1284.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/startup/system_SKEAZN642.c</locationURI>
 		</link>
 		<link>
 			<name>src/usb_stack/hid_device</name>
@@ -911,12 +911,12 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>src/usb_stack/platform/bsp/SKEAZ1284</name>
+			<name>src/usb_stack/platform/bsp/SKEAZN642</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>src/usb_stack/platform/soc/SKEAZ1284</name>
+			<name>src/usb_stack/platform/soc/SKEAZN642</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>

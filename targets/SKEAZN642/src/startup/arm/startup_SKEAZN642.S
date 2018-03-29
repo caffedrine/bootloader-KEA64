@@ -1,8 +1,8 @@
 /* ---------------------------------------------------------------------------------------*/
-/*  @file:    startup_SKEAZ1284.s                                                         */
+/*  @file:    startup_SKEAZN642.s                                                         */
 /*  @purpose: CMSIS Cortex-M0P Core Device Startup File                                   */
-/*            SKEAZ1284                                                                   */
-/*  @version: 1.3                                                                         */
+/*            SKEAZN642                                                                   */
+/*  @version: 1.2                                                                         */
 /*  @date:    2014-5-28                                                                   */
 /*  @build:   b140606                                                                     */
 /* ---------------------------------------------------------------------------------------*/
@@ -62,38 +62,38 @@ __isr_vector:
     .long   SysTick_Handler                                 /* SysTick Handler*/
 
                                                             /* External Interrupts*/
-    .long   Reserved16_IRQHandler                           /* Reserved interrupt*/
-    .long   Reserved17_IRQHandler                           /* Reserved interrupt*/
-    .long   Reserved18_IRQHandler                           /* Reserved interrupt*/
-    .long   Reserved19_IRQHandler                           /* Reserved interrupt*/
-    .long   Reserved20_IRQHandler                           /* Reserved interrupt*/
-    .long   FTMRE_IRQHandler                                /* Command complete and read collision*/
-    .long   PMC_IRQHandler                                  /* Low-voltage detect, low-voltage warning*/
-    .long   IRQ_IRQHandler                                  /* External Interrupt*/
+    .long   Reserved16_IRQHandler                           /* Reserved interrupt 16*/
+    .long   Reserved17_IRQHandler                           /* Reserved interrupt 17*/
+    .long   Reserved18_IRQHandler                           /* Reserved interrupt 18*/
+    .long   Reserved19_IRQHandler                           /* Reserved interrupt 19*/
+    .long   Reserved20_IRQHandler                           /* Reserved interrupt 20*/
+    .long   FTMRH_IRQHandler                                /* FTMRH command complete/read collision interrupt*/
+    .long   LVD_LVW_IRQHandler                              /* Low Voltage Detect, Low Voltage Warning*/
+    .long   IRQ_IRQHandler                                  /* External interrupt*/
     .long   I2C0_IRQHandler                                 /* I2C0 interrupt*/
-    .long   I2C1_IRQHandler                                 /* I2C1 interrupt*/
-    .long   SPI0_IRQHandler                                 /* SPI0 single interrupt vector for all sources*/
-    .long   SPI1_IRQHandler                                 /* SPI1 single interrupt vector for all sources*/
-    .long   UART0_IRQHandler                                /* UART0 status and error*/
-    .long   UART1_IRQHandler                                /* UART1 status and error*/
-    .long   UART2_IRQHandler                                /* UART2 status and error*/
-    .long   ADC_IRQHandler                                  /* ADC interrupt*/
+    .long   Reserved25_IRQHandler                           /* Reserved interrupt 25*/
+    .long   SPI0_IRQHandler                                 /* SPI0 interrupt*/
+    .long   SPI1_IRQHandler                                 /* SPI1 interrupt*/
+    .long   UART0_IRQHandler                                /* UART0 status/error interrupt*/
+    .long   UART1_IRQHandler                                /* UART1 status/error interrupt*/
+    .long   UART2_IRQHandler                                /* UART2 status/error interrupt*/
+    .long   ADC0_IRQHandler                                 /* ADC0 interrupt*/
     .long   ACMP0_IRQHandler                                /* ACMP0 interrupt*/
-    .long   FTM0_IRQHandler                                 /* FTM0 single interrupt vector for all sources*/
-    .long   FTM1_IRQHandler                                 /* FTM1 single interrupt vector for all sources*/
-    .long   FTM2_IRQHandler                                 /* FTM2 single interrupt vector for all sources*/
+    .long   FTM0_IRQHandler                                 /* FTM0 Single interrupt vector for all sources*/
+    .long   FTM1_IRQHandler                                 /* FTM1 Single interrupt vector for all sources*/
+    .long   FTM2_IRQHandler                                 /* FTM2 Single interrupt vector for all sources*/
     .long   RTC_IRQHandler                                  /* RTC overflow*/
     .long   ACMP1_IRQHandler                                /* ACMP1 interrupt*/
     .long   PIT_CH0_IRQHandler                              /* PIT CH0 overflow*/
     .long   PIT_CH1_IRQHandler                              /* PIT CH1 overflow*/
-    .long   KBI0_IRQHandler                                 /* Keyboard interrupt0(32bit)*/
-    .long   KBI1_IRQHandler                                 /* Keyboard interrupt1(32bit)*/
-    .long   Reserved42_IRQHandler                           /* Reserved interrupt*/
+    .long   KBI0_IRQHandler                                 /* Keyboard interrupt 0*/
+    .long   KBI1_IRQHandler                                 /* Keyboard interrupt 1*/
+    .long   Reserved42_IRQHandler                           /* Reserved interrupt 42*/
     .long   ICS_IRQHandler                                  /* ICS interrupt*/
-    .long   WDOG_IRQHandler                                 /* Watchdog timeout*/
-    .long   PWT_IRQHandler                                  /* PWT interrupt*/
-    .long   MSCAN_RX_IRQHandler                             /* MSCAN Rx Interrupt*/
-    .long   MSCAN_TX_IRQHandler                             /* MSCAN Tx, Err and Wake-up interrupt*/
+    .long   Watchdog_IRQHandler                             /* WDOG Interrupt*/
+    .long   Reserved45_IRQHandler                           /* Reserved interrupt 45*/
+    .long   Reserved46_IRQHandler                           /* Reserved interrupt 46*/
+    .long   Reserved47_IRQHandler                           /* Reserved interrupt 47*/
 
     .size    __isr_vector, . - __isr_vector
 
@@ -102,7 +102,7 @@ __isr_vector:
     .long 0xFFFFFFFF
     .long 0xFFFFFFFF
     .long 0xFFFFFFFF
-    .long 0xFFFEFFFF
+    .long 0xFFFEFF87
 
     .equ _NVIC_ICER,  0xE000E180
     .equ _NVIC_ICPR,  0xE000E280
@@ -203,17 +203,17 @@ Default_Handler:
     def_irq_handler    Reserved18_IRQHandler
     def_irq_handler    Reserved19_IRQHandler
     def_irq_handler    Reserved20_IRQHandler
-    def_irq_handler    FTMRE_IRQHandler
-    def_irq_handler    PMC_IRQHandler
+    def_irq_handler    FTMRH_IRQHandler
+    def_irq_handler    LVD_LVW_IRQHandler
     def_irq_handler    IRQ_IRQHandler
     def_irq_handler    I2C0_IRQHandler
-    def_irq_handler    I2C1_IRQHandler
+    def_irq_handler    Reserved25_IRQHandler
     def_irq_handler    SPI0_IRQHandler
     def_irq_handler    SPI1_IRQHandler
     def_irq_handler    UART0_IRQHandler
     def_irq_handler    UART1_IRQHandler
     def_irq_handler    UART2_IRQHandler
-    def_irq_handler    ADC_IRQHandler
+    def_irq_handler    ADC0_IRQHandler
     def_irq_handler    ACMP0_IRQHandler
     def_irq_handler    FTM0_IRQHandler
     def_irq_handler    FTM1_IRQHandler
@@ -226,10 +226,10 @@ Default_Handler:
     def_irq_handler    KBI1_IRQHandler
     def_irq_handler    Reserved42_IRQHandler
     def_irq_handler    ICS_IRQHandler
-    def_irq_handler    WDOG_IRQHandler
-    def_irq_handler    PWT_IRQHandler
-    def_irq_handler    MSCAN_RX_IRQHandler
-    def_irq_handler    MSCAN_TX_IRQHandler
+    def_irq_handler    Watchdog_IRQHandler
+    def_irq_handler    Reserved45_IRQHandler
+    def_irq_handler    Reserved46_IRQHandler
+    def_irq_handler    Reserved47_IRQHandler
     def_irq_handler    DefaultISR
 
     .end

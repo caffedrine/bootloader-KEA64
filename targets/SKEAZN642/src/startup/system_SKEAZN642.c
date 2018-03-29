@@ -78,7 +78,7 @@
  */
 
 #include <stdint.h>
-#include "SKEAZ1284/SKEAZ1284.h"
+#include "SKEAZN642/SKEAZN642.h"
 
 /* ----------------------------------------------------------------------------
  -- Core clock
