@@ -39,12 +39,12 @@
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-#define UART1_RX_GPIO_PIN_NUM 1  // PIN 1 in the PTE group
-#define UART1_RX_ALT_MODE 3      // ALT mode for UART1 functionality for pin 1
-#define UART1_RX_GPIO_ALT_MODE 1 // ALT mdoe for GPIO functionality for pin 1
+#define UART1_RX_GPIO_PIN_NUM 23  // PIN 1 in the PTE group
+#define UART1_RX_ALT_MODE 2       // ALT mode for UART1 functionality for pin 1
+#define UART1_RX_GPIO_ALT_MODE 2  // ALT mode for GPIO functionality for pin 1
 
-#define UART1_TX_GPIO_PIN_NUM 0  // PIN 0 in the PTE group
-#define UART1_TX_ALT_MODE 3      // ALT mode for UART1 TX functionality for pin 0
+#define UART1_TX_GPIO_PIN_NUM 22  // PIN 0 in the PTE group
+#define UART1_TX_ALT_MODE 2       // ALT mode for UART1 TX functionality for pin 0
 
 #define PORT_IRQC_INTERRUPT_FALLING_EDGE 0xA
 #define PORT_IRQC_INTERRUPT_DISABLE 0
@@ -57,7 +57,7 @@
 #define CAN0_TX_GPIO_PIN_NUM      18   // PIN 18 in the PTB group
 #define CAN0_TX_FUNC_ALT_MODE     2    // ALT mode for CAN0 TX functionality
 
-#define BOOT_PIN_NUMBER     12
+#define BOOT_PIN_NUMBER     12					# boot pin
 #define BOOT_PIN_PORT       PORTC
 #define BOOT_PIN_GPIO       PTC
 #define BOOT_PIN_ALT_MODE   1
