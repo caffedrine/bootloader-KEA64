@@ -32795,6 +32795,9 @@
  */
 /*@{*/
 /*! @brief Read current value of the SIM_SOPT1_RAMSIZE field. */
+
+// Alex:
+#define SIM_SOPT1_RAMSIZE_SHIFT                  12
 #define SIM_RD_SOPT1_RAMSIZE(base) ((SIM_SOPT1_REG(base) & SIM_SOPT1_RAMSIZE_MASK) >> SIM_SOPT1_RAMSIZE_SHIFT)
 #define SIM_BRD_SOPT1_RAMSIZE(base) (SIM_RD_SOPT1_RAMSIZE(base))
 /*@}*/

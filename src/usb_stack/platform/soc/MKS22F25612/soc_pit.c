@@ -135,7 +135,7 @@ int8_t pit_init_freq
         return PIT_INVALID_PARAM;
     }  
     /* Enable PIT Module Clock */
-    SIM_SCGC6 |= SIM_SCGC6_PIT_MASK;
+    //SIM_SCGC6 |= SIM_SCGC6_PIT_MASK;              // -> commented
     /* Enable PIT module */
     pit_ptr->MCR &= ~(PIT_MCR_FRZ_MASK |PIT_MCR_MDIS_MASK);
     /* Set counter reload value and counter value */
