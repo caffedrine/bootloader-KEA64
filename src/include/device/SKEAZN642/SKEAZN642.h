@@ -88,6 +88,9 @@
 
 #include <stdint.h>
 
+/*** IMPORTANT ***/
+#include "common_defines.h"	// this file the required defines which were not present in this project
+
 /** Memory map major version (memory maps with equal major version number are
  * compatible) */
 #define MCU_MEM_MAP_VERSION 0x0100u
@@ -115,7 +118,41 @@ typedef enum IRQn {
 	  PIT2_IRQn                    = 50,               /**< PIT timer channel 2 interrupt */
 	  PIT3_IRQn                    = 51,               /**< PIT timer channel 3 interrupt */
 	  USB0_IRQn                    = 53,               /**< USB0 interrupt */
-	
+	  CAN0_Tx_Warning_IRQn         = 78,               /**< CAN0 Tx warning interrupt */
+  CAN0_Rx_Warning_IRQn         = 79,               /**< CAN0 Rx warning interrupt */
+  CAN0_Wake_Up_IRQn            = 80,               /**< CAN0 wake up interrupt */
+  Reserved97_IRQn              = 81,               /**< Reserved Interrupt 97 */
+  Reserved98_IRQn              = 82,               /**< Reserved Interrupt 98 */
+  Reserved99_IRQn              = 83,               /**< Reserved Interrupt 99 */
+  Reserved100_IRQn             = 84,               /**< Reserved Interrupt 100 */
+  Reserved101_IRQn             = 85,               /**< Reserved Interrupt 101 */
+  Reserved102_IRQn             = 86,               /**< Reserved Interrupt 102 */
+  Reserved103_IRQn             = 87,               /**< Reserved Interrupt 103 */
+  I2S1_Tx_IRQn                 = 88,               /**< I2S1 transmit interrupt */
+  I2S1_Rx_IRQn                 = 89,               /**< I2S1 receive interrupt */
+  Reserved106_IRQn             = 90,               /**< Reserved Interrupt 106 */
+  Reserved107_IRQn             = 91,               /**< Reserved Interrupt 107 */
+  Reserved108_IRQn             = 92,               /**< Reserved Interrupt 108 */
+  Reserved109_IRQn             = 93,               /**< Reserved Interrupt 109 */
+  CAN1_ORed_Message_buffer_IRQn = 94,              /**< CAN0 OR'd message buffers interrupt */
+  CAN1_Bus_Off_IRQn            = 95,               /**< CAN1 bus off interrupt */
+  CAN1_Error_IRQn              = 96,               /**< CAN1 error interrupt */
+  CAN1_Tx_Warning_IRQn         = 97,               /**< CAN1 Tx warning interrupt */
+  CAN1_Rx_Warning_IRQn         = 98,               /**< CAN1 Rx warning interrupt */
+  CAN1_Wake_Up_IRQn            = 99,                /**< CAN1 wake up interrupt */
+   LPI2C0_IRQn                  = 24,               /**< LPI2C0 interrupt */
+  LPI2C1_IRQn                  = 25,               /**< LPI2C1 interrupt */
+UART0_RX_TX_IRQn             = 31,               /**< UART0 Status Sources interrupt */
+  UART0_ERR_IRQn               = 32,               /**< UART0 Error Sources interrupt */
+  UART1_RX_TX_IRQn             = 33,               /**< UART1 Status Sources interrupt */
+  UART1_ERR_IRQn               = 34,               /**< UART1 Error Sources interrupt */
+  UART2_RX_TX_IRQn             = 35,               /**< UART2 Status Sources interrupt */
+  UART2_ERR_IRQn               = 36,               /**< UART2 Error Sources interrupt */
+    CAN0_Error_IRQn              = 77,               /**< CAN0 error interrupt */
+CAN0_ORed_Message_buffer_IRQn = 75,              /**< CAN0 OR'd message buffers interrupt */
+  CAN0_Bus_Off_IRQn            = 76,               /**< CAN0 bus off interrupt */
+    PORTE_IRQn                   = 63,               /**< Port E interrupt */
+
 	
   /* Core interrupts */
   NonMaskableInt_IRQn          = -14,              /**< Non Maskable Interrupt */
@@ -123,7 +160,7 @@ typedef enum IRQn {
   SVCall_IRQn                  = -5,               /**< Cortex-M0 SV Call Interrupt */
   PendSV_IRQn                  = -2,               /**< Cortex-M0 Pend SV Interrupt */
   SysTick_IRQn                 = -1,               /**< Cortex-M0 System Tick Interrupt */
-
+  
   /* Device specific interrupts */
   Reserved16_IRQn              = 0,                /**< Reserved interrupt 16 */
   Reserved17_IRQn              = 1,                /**< Reserved interrupt 17 */
@@ -2901,7 +2938,12 @@ typedef struct {
 typedef struct {
   __IO uint8_t SPMSC1;                             /**< System Power Management Status and Control 1 Register, offset: 0x0 */
   __IO uint8_t SPMSC2;                             /**< System Power Management Status and Control 2 Register, offset: 0x1 */
-} PMC_Type, *PMC_MemMapPtr;
+	  __IO uint8_t LVDSC1;                             /**< Low Voltage Detect Status And Control 1 register, offset: 0x0 */
+  __IO uint8_t LVDSC2;                             /**< Low Voltage Detect Status And Control 2 register, offset: 0x1 */
+  __IO uint8_t REGSC;                              /**< Regulator Status And Control register, offset: 0x2 */
+       uint8_t RESERVED_0[8];
+  __IO uint8_t HVDSC1;   
+  } PMC_Type, *PMC_MemMapPtr;
 
 /* ----------------------------------------------------------------------------
    -- PMC - Register accessor macros
@@ -3009,7 +3051,20 @@ typedef struct {
   __IO uint32_t PUEL;                              /**< Port Pullup Enable Low Register, offset: 0x4 */
   __IO uint32_t PUEH;                              /**< Port Pullup Enable High Register, offset: 0x8 */
   __IO uint32_t HDRVE;                             /**< Port High Drive Enable Register, offset: 0xC */
-} PORT_Type, *PORT_MemMapPtr;
+ 
+ __IO uint32_t PCR[32];                           /**< Pin Control Register n, array offset: 0x0, array step: 0x4 */
+  __O  uint32_t GPCLR;                             /**< Global Pin Control Low Register, offset: 0x80 */
+  __O  uint32_t GPCHR;                             /**< Global Pin Control High Register, offset: 0x84 */
+  __O  uint32_t GICLR;                             /**< Global Interrupt Control Low Register, offset: 0x88 */
+  __O  uint32_t GICHR;                             /**< Global Interrupt Control High Register, offset: 0x8C */
+       uint8_t RESERVED_0[16];
+  __IO uint32_t ISFR;                              /**< Interrupt Status Flag Register, offset: 0xA0 */
+       uint8_t RESERVED_1[28];
+  __IO uint32_t DFER;                              /**< Digital Filter Enable Register, offset: 0xC0 */
+  __IO uint32_t DFCR;                              /**< Digital Filter Clock Register, offset: 0xC4 */
+  __IO uint32_t DFWR;                              /**< Digital Filter Width Register, offset: 0xC8 */
+
+  } PORT_Type, *PORT_MemMapPtr;
 
 /* ----------------------------------------------------------------------------
    -- PORT - Register accessor macros
@@ -3556,12 +3611,35 @@ typedef struct {
 /** SIM - Register Layout Typedef */
 typedef struct {
   __I  uint32_t SRSID;                             /**< System Reset Status and ID Register, offset: 0x0 */
-  __IO uint32_t SOPT;                              /**< System Options Register, offset: 0x4 */
+  __IO uint32_t SOPT1;                              /**< System Options Register, offset: 0x4 */
+         uint8_t RESERVED_0[4096];
+  __IO uint32_t SOPT2;                             /**< System Options Register 2, offset: 0x1004 */
+       uint8_t RESERVED_1[8];
+  __IO uint32_t SOPT5;                             /**< System Options Register 5, offset: 0x1010 */
+       uint8_t RESERVED_2[4];
+  __IO uint32_t SOPT7;                             /**< System Options Register 7, offset: 0x1018 */
+       uint8_t RESERVED_3[4];
+  __IO uint32_t SOPT9;                             /**< System Options Register 9, offset: 0x1020 */
+ 
   __IO uint32_t PINSEL;                            /**< Pin Selection Register, offset: 0x8 */
   __IO uint32_t SCGC;                              /**< System Clock Gating Control Register, offset: 0xC */
   __I  uint32_t UUIDL;                             /**< Universally Unique Identifier Low Register, offset: 0x10 */
   __I  uint32_t UUIDH;                             /**< Universally Unique Identifier High Register, offset: 0x14 */
   __IO uint32_t BUSDIV;                            /**< BUS Clock Divider Register, offset: 0x18 */
+
+    __I  uint32_t UIDML;                             /**< Unique Identification Register Mid Low, offset: 0x105C */
+  __I  uint32_t UIDH;                              /**< Unique Identification Register High, offset: 0x1054 */
+  __I  uint32_t UIDMH;                             /**< Unique Identification Register Mid-High, offset: 0x1058 */
+  __I  uint32_t UIDL;                              /**< Unique Identification Register Low, offset: 0x1060 */
+  __I  uint32_t SDID;                              /**< System Device Identification Register, offset: 0x1024 */
+  __IO uint32_t FCFG1;                             /**< Flash Configuration Register 1, offset: 0x104C */
+ __IO uint32_t SCGC4;                             /**< System Clock Gating Control Register 4, offset: 0x1034 */
+  __IO uint32_t SCGC5;                             /**< System Clock Gating Control Register 5, offset: 0x1038 */
+  __IO uint32_t SCGC6;                             /**< System Clock Gating Control Register 6, offset: 0x103C */
+  __IO uint32_t SCGC7;                             /**< System Clock Gating Control Register 7, offset: 0x1040 */
+    __IO uint32_t CLKDIV1;                           /**< System Clock Divider Register 1, offset: 0x1044 */
+
+
 } SIM_Type, *SIM_MemMapPtr;
 
 /* ----------------------------------------------------------------------------
@@ -3575,6 +3653,28 @@ typedef struct {
 
 
 /* SIM - Register accessors */
+#define SIM_SOPT1_REG(base)                      ((base)->SOPT1)
+#define SIM_SOPT2_REG(base)                      ((base)->SOPT2)
+#define SIM_SOPT5_REG(base)                      ((base)->SOPT5)
+#define SIM_SOPT7_REG(base)                      ((base)->SOPT7)
+#define SIM_SOPT9_REG(base)                      ((base)->SOPT9)
+#define SIM_SDID_REG(base)                       ((base)->SDID)
+#define SIM_SCGC4_REG(base)                      ((base)->SCGC4)
+#define SIM_SCGC5_REG(base)                      ((base)->SCGC5)
+#define SIM_SCGC6_REG(base)                      ((base)->SCGC6)
+#define SIM_SCGC7_REG(base)                      ((base)->SCGC7)
+#define SIM_CLKDIV1_REG(base)                    ((base)->CLKDIV1)
+#define SIM_CLKDIV2_REG(base)                    ((base)->CLKDIV2)
+#define SIM_FCFG1_REG(base)                      ((base)->FCFG1)
+#define SIM_FCFG2_REG(base)                      ((base)->FCFG2)
+#define SIM_UIDH_REG(base)                       ((base)->UIDH)
+#define SIM_UIDMH_REG(base)                      ((base)->UIDMH)
+#define SIM_UIDML_REG(base)                      ((base)->UIDML)
+#define SIM_UIDL_REG(base)                       ((base)->UIDL)
+#define SIM_CLKDIV3_REG(base)                    ((base)->CLKDIV3)
+#define SIM_MISCCTL_REG(base)                    ((base)->MISCCTL)
+
+
 #define SIM_SRSID_REG(base)                      ((base)->SRSID)
 #define SIM_SOPT_REG(base)                       ((base)->SOPT)
 #define SIM_PINSEL_REG(base)                     ((base)->PINSEL)
@@ -3582,6 +3682,8 @@ typedef struct {
 #define SIM_UUIDL_REG(base)                      ((base)->UUIDL)
 #define SIM_UUIDH_REG(base)                      ((base)->UUIDH)
 #define SIM_BUSDIV_REG(base)                     ((base)->BUSDIV)
+#define SIM_SDID                                 SIM_SDID_REG(SIM)
+
 
 /*!
  * @}
@@ -3803,6 +3905,31 @@ typedef struct {
   __IO uint8_t D;                                  /**< SPI Data Register, offset: 0x5 */
        uint8_t RESERVED_1[1];
   __IO uint8_t M;                                  /**< SPI Match Register, offset: 0x7 */
+  
+  // Addede
+    __IO uint32_t MCR;                               /**< Module Configuration Register, offset: 0x0 */
+  __IO uint32_t TCR;                               /**< Transfer Count Register, offset: 0x8 */
+  union {                                          /* offset: 0xC */
+    __IO uint32_t CTAR[2];                           /**< Clock and Transfer Attributes Register (In Master Mode), array offset: 0xC, array step: 0x4 */
+    __IO uint32_t CTAR_SLAVE[1];                     /**< Clock and Transfer Attributes Register (In Slave Mode), array offset: 0xC, array step: 0x4 */
+  };
+  __IO uint32_t SR;                                /**< Status Register, offset: 0x2C */
+  __IO uint32_t RSER;                              /**< DMA/Interrupt Request Select and Enable Register, offset: 0x30 */
+  union {                                          /* offset: 0x34 */
+    __IO uint32_t PUSHR;                             /**< PUSH TX FIFO Register In Master Mode, offset: 0x34 */
+    __IO uint32_t PUSHR_SLAVE;                       /**< PUSH TX FIFO Register In Slave Mode, offset: 0x34 */
+  };
+  __I  uint32_t POPR;                              /**< POP RX FIFO Register, offset: 0x38 */
+  __I  uint32_t TXFR0;                             /**< Transmit FIFO Registers, offset: 0x3C */
+  __I  uint32_t TXFR1;                             /**< Transmit FIFO Registers, offset: 0x40 */
+  __I  uint32_t TXFR2;                             /**< Transmit FIFO Registers, offset: 0x44 */
+  __I  uint32_t TXFR3;                             /**< Transmit FIFO Registers, offset: 0x48 */
+       uint8_t RESERVED_2[48];
+  __I  uint32_t RXFR0;                             /**< Receive FIFO Registers, offset: 0x7C */
+  __I  uint32_t RXFR1;                             /**< Receive FIFO Registers, offset: 0x80 */
+  __I  uint32_t RXFR2;                             /**< Receive FIFO Registers, offset: 0x84 */
+  __I  uint32_t RXFR3;                             /**< Receive FIFO Registers, offset: 0x88 */
+  
 } SPI_Type, *SPI_MemMapPtr;
 
 /* ----------------------------------------------------------------------------
@@ -3951,26 +4078,60 @@ typedef struct {
    -- UART Peripheral Access Layer
    ---------------------------------------------------------------------------- */
 
-/*!
- * @addtogroup UART_Peripheral_Access_Layer UART Peripheral Access Layer
- * @{
- */
-
 /** UART - Register Layout Typedef */
 typedef struct {
-  __IO uint8_t BDH;                                /**< UART Baud Rate Register: High, offset: 0x0 */
-  __IO uint8_t BDL;                                /**< UART Baud Rate Register: Low, offset: 0x1 */
+  __IO uint8_t BDH;                                /**< UART Baud Rate Registers: High, offset: 0x0 */
+  __IO uint8_t BDL;                                /**< UART Baud Rate Registers: Low, offset: 0x1 */
   __IO uint8_t C1;                                 /**< UART Control Register 1, offset: 0x2 */
   __IO uint8_t C2;                                 /**< UART Control Register 2, offset: 0x3 */
   __I  uint8_t S1;                                 /**< UART Status Register 1, offset: 0x4 */
   __IO uint8_t S2;                                 /**< UART Status Register 2, offset: 0x5 */
   __IO uint8_t C3;                                 /**< UART Control Register 3, offset: 0x6 */
   __IO uint8_t D;                                  /**< UART Data Register, offset: 0x7 */
+  __IO uint8_t MA1;                                /**< UART Match Address Registers 1, offset: 0x8 */
+  __IO uint8_t MA2;                                /**< UART Match Address Registers 2, offset: 0x9 */
+  __IO uint8_t C4;                                 /**< UART Control Register 4, offset: 0xA */
+  __IO uint8_t C5;                                 /**< UART Control Register 5, offset: 0xB */
+  __I  uint8_t ED;                                 /**< UART Extended Data Register, offset: 0xC */
+  __IO uint8_t MODEM;                              /**< UART Modem Register, offset: 0xD */
+  __IO uint8_t IR;                                 /**< UART Infrared Register, offset: 0xE */
+       uint8_t RESERVED_0[1];
+  __IO uint8_t PFIFO;                              /**< UART FIFO Parameters, offset: 0x10 */
+  __IO uint8_t CFIFO;                              /**< UART FIFO Control Register, offset: 0x11 */
+  __IO uint8_t SFIFO;                              /**< UART FIFO Status Register, offset: 0x12 */
+  __IO uint8_t TWFIFO;                             /**< UART FIFO Transmit Watermark, offset: 0x13 */
+  __I  uint8_t TCFIFO;                             /**< UART FIFO Transmit Count, offset: 0x14 */
+  __IO uint8_t RWFIFO;                             /**< UART FIFO Receive Watermark, offset: 0x15 */
+  __I  uint8_t RCFIFO;                             /**< UART FIFO Receive Count, offset: 0x16 */
+       uint8_t RESERVED_1[1];
+  __IO uint8_t C7816;                              /**< UART 7816 Control Register, offset: 0x18 */
+  __IO uint8_t IE7816;                             /**< UART 7816 Interrupt Enable Register, offset: 0x19 */
+  __IO uint8_t IS7816;                             /**< UART 7816 Interrupt Status Register, offset: 0x1A */
+  __IO uint8_t WP7816;                             /**< UART 7816 Wait Parameter Register, offset: 0x1B */
+  __IO uint8_t WN7816;                             /**< UART 7816 Wait N Register, offset: 0x1C */
+  __IO uint8_t WF7816;                             /**< UART 7816 Wait FD Register, offset: 0x1D */
+  __IO uint8_t ET7816;                             /**< UART 7816 Error Threshold Register, offset: 0x1E */
+  __IO uint8_t TL7816;                             /**< UART 7816 Transmit Length Register, offset: 0x1F */
+       uint8_t RESERVED_2[26];
+  __IO uint8_t AP7816A_T0;                         /**< UART 7816 ATR Duration Timer Register A, offset: 0x3A */
+  __IO uint8_t AP7816B_T0;                         /**< UART 7816 ATR Duration Timer Register B, offset: 0x3B */
+  union {                                          /* offset: 0x3C */
+    struct {                                         /* offset: 0x3C */
+      __IO uint8_t WP7816A_T0;                         /**< UART 7816 Wait Parameter Register A, offset: 0x3C */
+      __IO uint8_t WP7816B_T0;                         /**< UART 7816 Wait Parameter Register B, offset: 0x3D */
+    } TYPE0;
+    struct {                                         /* offset: 0x3C */
+      __IO uint8_t WP7816A_T1;                         /**< UART 7816 Wait Parameter Register A, offset: 0x3C */
+      __IO uint8_t WP7816B_T1;                         /**< UART 7816 Wait Parameter Register B, offset: 0x3D */
+    } TYPE1;
+  };
+  __IO uint8_t WGP7816_T1;                         /**< UART 7816 Wait and Guard Parameter Register, offset: 0x3E */
+  __IO uint8_t WP7816C_T1;                         /**< UART 7816 Wait Parameter Register C, offset: 0x3F */
 } UART_Type, *UART_MemMapPtr;
 
 /* ----------------------------------------------------------------------------
    -- UART - Register accessor macros
-   ---------------------------------------------------------------------------- */
+   ------------------------------------------------------------------------------------------- */
 
 /*!
  * @addtogroup UART_Register_Accessor_Macros UART - Register accessor macros
@@ -6271,7 +6432,9 @@ typedef struct {
  * @}
  */ /* end of group MCG_Peripheral_Access_Layer */
  
- 
+ #define PORTE_BASE                               (0x4004D000u)
+#define PTE_BASE                                 (0x400FF100u)
+
  #define PORTE                                    ((PORT_Type *)PORTE_BASE)
  #define PORT_PCR_MUX_MASK                        0xF00u
 #define PORT_PCR_ISF_MASK                        0x1000000u
@@ -7079,8 +7242,105 @@ typedef struct {
  */ /* end of group CAN_Peripheral_Access_Layer */
 
  
- 
- 
+ #define SIM_SDID_REG(base)                       ((base)->SDID)
+
+ /* ----------------------------------------------------------------------------
+   -- FTFA Peripheral Access Layer
+   ---------------------------------------------------------------------------- */
+
+/*!
+ * @addtogroup FTFA_Peripheral_Access_Layer FTFA Peripheral Access Layer
+ * @{
+ */
+
+/** FTFA - Register Layout Typedef */
+typedef struct {
+  __IO uint8_t FSTAT;                              /**< Flash Status Register, offset: 0x0 */
+  __IO uint8_t FCNFG;                              /**< Flash Configuration Register, offset: 0x1 */
+  __I  uint8_t FSEC;                               /**< Flash Security Register, offset: 0x2 */
+  __I  uint8_t FOPT;                               /**< Flash Option Register, offset: 0x3 */
+  __IO uint8_t FCCOB3;                             /**< Flash Common Command Object Registers, offset: 0x4 */
+  __IO uint8_t FCCOB2;                             /**< Flash Common Command Object Registers, offset: 0x5 */
+  __IO uint8_t FCCOB1;                             /**< Flash Common Command Object Registers, offset: 0x6 */
+  __IO uint8_t FCCOB0;                             /**< Flash Common Command Object Registers, offset: 0x7 */
+  __IO uint8_t FCCOB7;                             /**< Flash Common Command Object Registers, offset: 0x8 */
+  __IO uint8_t FCCOB6;                             /**< Flash Common Command Object Registers, offset: 0x9 */
+  __IO uint8_t FCCOB5;                             /**< Flash Common Command Object Registers, offset: 0xA */
+  __IO uint8_t FCCOB4;                             /**< Flash Common Command Object Registers, offset: 0xB */
+  __IO uint8_t FCCOBB;                             /**< Flash Common Command Object Registers, offset: 0xC */
+  __IO uint8_t FCCOBA;                             /**< Flash Common Command Object Registers, offset: 0xD */
+  __IO uint8_t FCCOB9;                             /**< Flash Common Command Object Registers, offset: 0xE */
+  __IO uint8_t FCCOB8;                             /**< Flash Common Command Object Registers, offset: 0xF */
+  __IO uint8_t FPROT3;                             /**< Program Flash Protection Registers, offset: 0x10 */
+  __IO uint8_t FPROT2;                             /**< Program Flash Protection Registers, offset: 0x11 */
+  __IO uint8_t FPROT1;                             /**< Program Flash Protection Registers, offset: 0x12 */
+  __IO uint8_t FPROT0;                             /**< Program Flash Protection Registers, offset: 0x13 */
+       uint8_t RESERVED_0[4];
+  __I  uint8_t XACCH3;                             /**< Execute-only Access Registers, offset: 0x18 */
+  __I  uint8_t XACCH2;                             /**< Execute-only Access Registers, offset: 0x19 */
+  __I  uint8_t XACCH1;                             /**< Execute-only Access Registers, offset: 0x1A */
+  __I  uint8_t XACCH0;                             /**< Execute-only Access Registers, offset: 0x1B */
+  __I  uint8_t XACCL3;                             /**< Execute-only Access Registers, offset: 0x1C */
+  __I  uint8_t XACCL2;                             /**< Execute-only Access Registers, offset: 0x1D */
+  __I  uint8_t XACCL1;                             /**< Execute-only Access Registers, offset: 0x1E */
+  __I  uint8_t XACCL0;                             /**< Execute-only Access Registers, offset: 0x1F */
+  __I  uint8_t SACCH3;                             /**< Supervisor-only Access Registers, offset: 0x20 */
+  __I  uint8_t SACCH2;                             /**< Supervisor-only Access Registers, offset: 0x21 */
+  __I  uint8_t SACCH1;                             /**< Supervisor-only Access Registers, offset: 0x22 */
+  __I  uint8_t SACCH0;                             /**< Supervisor-only Access Registers, offset: 0x23 */
+  __I  uint8_t SACCL3;                             /**< Supervisor-only Access Registers, offset: 0x24 */
+  __I  uint8_t SACCL2;                             /**< Supervisor-only Access Registers, offset: 0x25 */
+  __I  uint8_t SACCL1;                             /**< Supervisor-only Access Registers, offset: 0x26 */
+  __I  uint8_t SACCL0;                             /**< Supervisor-only Access Registers, offset: 0x27 */
+  __I  uint8_t FACSS;                              /**< Flash Access Segment Size Register, offset: 0x28 */
+       uint8_t RESERVED_1[2];
+  __I  uint8_t FACSN;                              /**< Flash Access Segment Number Register, offset: 0x2B */
+} FTFA_Type, *FTFA_MemMapPtr;
+
+/* ----------------------------------------------------------------------------
+   -- FTFA - Register accessor macros
+   ---------------------------------------------------------------------------- */
+
+ /* SCGC5 Bit Fields */
+#define SIM_SCGC5_LPTMR_MASK                     0x1u
+#define SIM_SCGC5_LPTMR_SHIFT                    0
+#define SIM_SCGC5_LPTMR_WIDTH                    1
+#define SIM_SCGC5_LPTMR(x)                       (((uint32_t)(((uint32_t)(x))<<SIM_SCGC5_LPTMR_SHIFT))&SIM_SCGC5_LPTMR_MASK)
+#define SIM_SCGC5_PORTA_MASK                     0x200u
+#define SIM_SCGC5_PORTA_SHIFT                    9
+#define SIM_SCGC5_PORTA_WIDTH                    1
+#define SIM_SCGC5_PORTA(x)                       (((uint32_t)(((uint32_t)(x))<<SIM_SCGC5_PORTA_SHIFT))&SIM_SCGC5_PORTA_MASK)
+#define SIM_SCGC5_PORTB_MASK                     0x400u
+#define SIM_SCGC5_PORTB_SHIFT                    10
+#define SIM_SCGC5_PORTB_WIDTH                    1
+#define SIM_SCGC5_PORTB(x)                       (((uint32_t)(((uint32_t)(x))<<SIM_SCGC5_PORTB_SHIFT))&SIM_SCGC5_PORTB_MASK)
+#define SIM_SCGC5_PORTC_MASK                     0x800u
+#define SIM_SCGC5_PORTC_SHIFT                    11
+#define SIM_SCGC5_PORTC_WIDTH                    1
+#define SIM_SCGC5_PORTC(x)                       (((uint32_t)(((uint32_t)(x))<<SIM_SCGC5_PORTC_SHIFT))&SIM_SCGC5_PORTC_MASK)
+#define SIM_SCGC5_PORTD_MASK                     0x1000u
+#define SIM_SCGC5_PORTD_SHIFT                    12
+#define SIM_SCGC5_PORTD_WIDTH                    1
+#define SIM_SCGC5_PORTD(x)                       (((uint32_t)(((uint32_t)(x))<<SIM_SCGC5_PORTD_SHIFT))&SIM_SCGC5_PORTD_MASK)
+#define SIM_SCGC5_PORTE_MASK                     0x2000u
+#define SIM_SCGC5_PORTE_SHIFT                    13
+#define SIM_SCGC5_PORTE_WIDTH                    1
+#define SIM_SCGC5_PORTE(x)                       (((uint32_t)(((uint32_t)(x))<<SIM_SCGC5_PORTE_SHIFT))&SIM_SCGC5_PORTE_MASK)
+#define SIM_SCGC5_FLEXIO_MASK                    0x80000000u
+#define SIM_SCGC5_FLEXIO_SHIFT                   31
+#define SIM_SCGC5_FLEXIO_WIDTH                   1
+#define SIM_SCGC5_FLEXIO(x)                      (((uint32_t)(((uint32_t)(x))<<SIM_SCGC5_FLEXIO_SHIFT))&SIM_SCGC5_FLEXIO_MASK)
+
+
+/** SMC - Register Layout Typedef */
+typedef struct {
+  __IO uint8_t PMPROT;                             /**< Power Mode Protection register, offset: 0x0 */
+  __IO uint8_t PMCTRL;                             /**< Power Mode Control register, offset: 0x1 */
+  __IO uint8_t STOPCTRL;                           /**< Stop Control Register, offset: 0x2 */
+  __I  uint8_t PMSTAT;                             /**< Power Mode Status register, offset: 0x3 */
+} SMC_Type, *SMC_MemMapPtr;
+
+/* -
  
 ////////////////////////////////////////////////////////////////////////
  

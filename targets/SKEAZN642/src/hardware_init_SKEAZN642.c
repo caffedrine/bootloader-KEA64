@@ -39,12 +39,12 @@
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-#define UART1_RX_GPIO_PIN_NUM 23  // PIN 1 in the PTE group
-#define UART1_RX_ALT_MODE 2       // ALT mode for UART1 functionality for pin 1
-#define UART1_RX_GPIO_ALT_MODE 2  // ALT mode for GPIO functionality for pin 1
+#define UART1_RX_GPIO_PIN_NUM 1  // PIN 1 in the PTE group
+#define UART1_RX_ALT_MODE 3      // ALT mode for UART1 functionality for pin 1
+#define UART1_RX_GPIO_ALT_MODE 1 // ALT mdoe for GPIO functionality for pin 1
 
-#define UART1_TX_GPIO_PIN_NUM 22  // PIN 0 in the PTE group
-#define UART1_TX_ALT_MODE 2       // ALT mode for UART1 TX functionality for pin 0
+#define UART1_TX_GPIO_PIN_NUM 0  // PIN 0 in the PTE group
+#define UART1_TX_ALT_MODE 3      // ALT mode for UART1 TX functionality for pin 0
 
 #define PORT_IRQC_INTERRUPT_FALLING_EDGE 0xA
 #define PORT_IRQC_INTERRUPT_DISABLE 0
@@ -57,7 +57,7 @@
 #define CAN0_TX_GPIO_PIN_NUM      18   // PIN 18 in the PTB group
 #define CAN0_TX_FUNC_ALT_MODE     2    // ALT mode for CAN0 TX functionality
 
-#define BOOT_PIN_NUMBER     12					# boot pin
+#define BOOT_PIN_NUMBER     12
 #define BOOT_PIN_PORT       PORTC
 #define BOOT_PIN_GPIO       PTC
 #define BOOT_PIN_ALT_MODE   1
@@ -228,32 +228,32 @@ void init_hardware(void)
     exit_vlpr();
 
     // Enable all the ports
-    SIM->SCGC |= ( SIM_SCGC_PORTA_MASK
-                  | SIM_SCGC_PORTB_MASK
-                  | SIM_SCGC_PORTC_MASK
-                  | SIM_SCGC_PORTD_MASK
-                  | SIM_SCGC_PORTE_MASK );
+    SIM->SCGC5 |= ( SIM_SCGC5_PORTA_MASK
+                  | SIM_SCGC5_PORTB_MASK
+                  | SIM_SCGC5_PORTC_MASK
+                  | SIM_SCGC5_PORTD_MASK
+                  | SIM_SCGC5_PORTE_MASK );
 
-    SIM->SOPT |= SIM_SOPT_PLLFLLSEL_MASK ; // set PLLFLLSEL to select the IRC48M for this clock source
-    SIM->SOPT |= SIM_SOPT_LPI2C0SRC(1); 	// Select MCFGFLLCLK as LPI2C0 peripheral clock source.
+    SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK ; // set PLLFLLSEL to select the IRC48M for this clock source
+    SIM->SOPT2 |= SIM_SOPT2_LPI2C0SRC(1); // Select MCFGFLLCLK as LPI2C0 peripheral clock source.
 }
 
 void deinit_hardware(void)
 {
-    SIM->SCGC &= (uint32_t)~( SIM_SCGC_PORTA_MASK
-                  | SIM_SCGC_PORTB_MASK
-                  | SIM_SCGC_PORTC_MASK
-                  | SIM_SCGC_PORTD_MASK
-                  | SIM_SCGC_PORTE_MASK );
+    SIM->SCGC5 &= (uint32_t)~( SIM_SCGC5_PORTA_MASK
+                  | SIM_SCGC5_PORTB_MASK
+                  | SIM_SCGC5_PORTC_MASK
+                  | SIM_SCGC5_PORTD_MASK
+                  | SIM_SCGC5_PORTE_MASK );
 
     // Restore SIM_SOPTx related bits being changed
-    SIM->SOPT &= (uint32_t)~(SIM_SOPT_USBSRC_MASK | SIM_SOPT_PLLFLLSEL_MASK | SIM_SOPT_LPI2C0SRC_MASK);
+    SIM->SOPT2 &= (uint32_t)~(SIM_SOPT2_USBSRC_MASK | SIM_SOPT2_PLLFLLSEL_MASK | SIM_SOPT2_LPI2C0SRC_MASK);
 }
 
 bool usb_clock_init(void)
 {
     // Enable USB-OTG IP clocking
-    SIM_SCGC |= (SIM_SCGC_USBOTG_MASK);
+    SIM_SCGC4 |= (SIM_SCGC4_USBOTG_MASK);
 
     // If clock of usb module cannot be enabled, return false
     if( !(SIM_SCGC4 & SIM_SCGC4_USBOTG_MASK) )
@@ -268,7 +268,7 @@ bool usb_clock_init(void)
 
     // Select IRC48M clock, SIM_SOPT2_USBSRC_MASK selects internal clock,
     // 0x30000 = SIM_SOPT2_PLLFLLSEL_MASK, selects IRC48MHz clock
-    SIM_SOPT |= (SIM_SOPT_USBSRC_MASK | SIM_SOPT_PLLFLLSEL_MASK);
+    SIM_SOPT2 |= (SIM_SOPT2_USBSRC_MASK | SIM_SOPT2_PLLFLLSEL_MASK);
 
     // need to set the clock_recover_en and irc_en register
     USB_BWR_CLK_RECOVER_CTRL_CLOCK_RECOVER_EN(USB0, 1);
