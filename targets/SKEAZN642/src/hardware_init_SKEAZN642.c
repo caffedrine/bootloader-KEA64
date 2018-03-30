@@ -39,12 +39,12 @@
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-#define UART1_RX_GPIO_PIN_NUM 1  // PIN 1 in the PTE group
-#define UART1_RX_ALT_MODE 3      // ALT mode for UART1 functionality for pin 1
-#define UART1_RX_GPIO_ALT_MODE 1 // ALT mdoe for GPIO functionality for pin 1
+#define UART1_RX_GPIO_PIN_NUM 23  // PIN 1 in the PTE group
+#define UART1_RX_ALT_MODE 2      // ALT mode for UART1 functionality for pin 1
+#define UART1_RX_GPIO_ALT_MODE 2 // ALT mdoe for GPIO functionality for pin 1
 
-#define UART1_TX_GPIO_PIN_NUM 0  // PIN 0 in the PTE group
-#define UART1_TX_ALT_MODE 3      // ALT mode for UART1 TX functionality for pin 0
+#define UART1_TX_GPIO_PIN_NUM 22   // PIN 6 in the PTE group
+#define UART1_TX_ALT_MODE 2      // ALT mode for UART2 TX functionality for pin 0
 
 #define PORT_IRQC_INTERRUPT_FALLING_EDGE 0xA
 #define PORT_IRQC_INTERRUPT_DISABLE 0
@@ -95,8 +95,8 @@ void uart_pinmux_config(unsigned int instance, pinmux_type_t pinmux)
                     PORT_BWR_PCR_MUX(PORTE, UART1_TX_GPIO_PIN_NUM, 0);
                     break;
                 case kPinmuxType_GPIO:
-                    PORT_BWR_PCR_MUX(PORTE, UART1_RX_GPIO_PIN_NUM, UART1_RX_GPIO_ALT_MODE); // Set UART1_RX pin in GPIO mode
-                    GPIO_CLR_PDDR(PTE, 1 << UART1_RX_GPIO_PIN_NUM);                    // Set UART1_RX pin as an input
+                    PORT_BWR_PCR_MUX(PORTE, UART1_RX_GPIO_PIN_NUM, UART1_RX_GPIO_ALT_MODE); 	// Set UART1_RX pin in GPIO mode
+                    GPIO_CLR_PDDR(PTE, 1 << UART1_RX_GPIO_PIN_NUM);                    			// Set UART1_RX pin as an input
                     break;
                 case kPinmuxType_Peripheral:
                     PORT_BWR_PCR_MUX(PORTE, UART1_RX_GPIO_PIN_NUM, UART1_RX_ALT_MODE);   // Set UART1_RX pin to UART1_RX functionality
