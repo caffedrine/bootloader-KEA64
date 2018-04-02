@@ -27,6 +27,9 @@
 ## ARM Compiler:
 
   * http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0491f/CHDDIJFH.html  
+
+## Debugging:
+  * https://community.nxp.com/docs/DOC-101845
   
 ## To read:
   * Simple Serial Bootloader: https://community.nxp.com/docs/DOC-335384
