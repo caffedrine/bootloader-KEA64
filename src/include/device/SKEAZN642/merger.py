@@ -1,11 +1,28 @@
 #!/usr/bin/python
 
+# caffedrine@github.com
+
+import sys          # to pass arguments
+import os.path      # to check wether file exists or not
+
+if len(sys.argv) < 2:
+    print("Usage: merger.py low_priotity_file.h high_priority_file.h")
+    print("  - low_priority_file = the file whose defines will be copied in the other")
+    print("  - high_priority_file = the missing defines from this file will be written in output from low priority file")
+    sys.exit(1)
+
 print("// Generated with merger.py")
 print("// This will display '#define' lines which are in B and not in A so you can add those defines in A")
 
-high_priority_file = "C:\Workspaces\pyCharm\DefinesMerger\SKEAZN642.h"
-low_priotity_file = "C:\Workspaces\pyCharm\DefinesMerger\SKEAZN642_old.h"
+low_priotity_file = sys.argv[2]
+high_priority_file = sys.argv[1]
 output_file = "C:\Workspaces\pyCharm\DefinesMerger\common_defines.h"
+
+print("Got: " + high_priority_file + " - " + low_priotity_file)
+
+if not (os.path.isfile(high_priority_file) and os.path.isfile(low_priotity_file)):
+    print("Invalid files!\n")
+    sys.exit(1)
 
 high_priority_defines_array = []
 low_priority_defines_array = []
