@@ -16,9 +16,9 @@
 /* Flash total size */
 #define TARGET_FLASH_SIZE       64*1024u//1024*1024u
 /* SRAM start address */
-#define TARGET_RAM_START        0x1FFFF000//0x1FFF0000
+#define TARGET_RAM_START        0x1FFFFC00//0x1FFF0000
 /* SRAM total size */
-#define TARGET_RAM_SIZE         0x4000//0x40000
+#define TARGET_RAM_SIZE         0x1000//0x40000 -> 16k
 
 
 /****************************************************
