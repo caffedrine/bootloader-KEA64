@@ -57,11 +57,4 @@ dkms.conf
 *.log
 */*.log
 
-targets/SKEAZ1284/kds/flashloader/debug/*
-targets/SKEAZ1284/kds/flashloader/release/*
-
-targets/SKEAZ1284/kds/flashloader_loader/debug/*
-targets/SKEAZ1284/kds/flashloader_loader/release/*
-
-targets/SKEAZ1284/kds/maps_bootloader/debug/*
-targets/SKEAZ1284/kds/maps_bootloader/release/*
+Debug/

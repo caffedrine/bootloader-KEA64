@@ -16,7 +16,7 @@
 /**********************************************************************************************
  * External objects
  **********************************************************************************************/
-#include "Headers/derivative.h" /* include peripheral declarations */
+#include "SKEAZN642.h" /* include peripheral declarations */
 #include "Headers/UART.h"
 #include "Headers/CLK.h"
 /**********************************************************************************************
@@ -34,8 +34,8 @@
 /**********************************************************************************************
  * Local function prototypes
  *********************************************************************************************/
-void Enable_Interrupt(UINT8 vector_number);
-void Uart_Interrupt(UINT8 data);
+void Enable_Interrupt(uint8_t vector_number);
+void Uart_Interrupt(uint8_t data);
 
 /**********************************************************************************************
  * Local variables
@@ -58,16 +58,16 @@ void Uart_Interrupt(UINT8 data);
  ************************************************************************************************/
 int main2(void)
 {
-	UINT32 counter = 0;
+	uint32_t counter = 0;
 	Clk_Init(); /* Configure clocks to run at 20 Mhz */
 	UART_Init(); /*Initialize Uart 2 at 9600 bauds */
 	Uart_SetCallback( Uart_Interrupt ); /* Set the callback function that the UART driver will call when receiving a char */
 	NVIC_EnableIRQ( UART2_IRQn ); /* Enable UART2 interrupt */
 
 	Uart_SendChar( 0x55 );
-	Uart_SendChar( 0x55 );
-	Uart_SendChar( 0x55 );
-	Uart_SendChar( 0x55 );
+	Uart_SendChar( 0x56 );
+	Uart_SendChar( 0x57 );
+	Uart_SendChar( 0x58 );
 
 	for ( ;; )
 	{
@@ -83,7 +83,7 @@ int main2(void)
  * @return   none
  *
  ************************************************************************************************/
-//void Uart_Interrupt(UINT8 data)
+//void Uart_Interrupt(uint8_t data)
 //{
 //	Uart_SendChar( data ); /* Echos data that is received*/
 //}

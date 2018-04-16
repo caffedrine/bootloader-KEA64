@@ -1,9 +1,10 @@
+#include <stdint.h>
+
 #include "bl_bsp.h"
 #include "bl_core.h"
 #include "bl_cfg.h"
 
-//jj orginal
-#include "Headers/derivative.h" /* include peripheral declarations */
+#include "SKEAZN642.h"
 #include "Headers/UART.h"
 #include "Headers/CLK.h"
 /*
@@ -12,8 +13,8 @@
  *
  */
 
-void Enable_Interrupt(UINT8 vector_number); //jj orginal
-void Uart_Interrupt(UINT8 data); //jj orginal
+void Enable_Interrupt(uint8_t vector_number);
+void Uart_Interrupt(uint8_t data);
 
 typedef int32_t status_t;
 
@@ -245,8 +246,10 @@ uint16_t calculate_crc(serial_packet_t *packet)
 	uint16_t crc_val = 0;
 	uint8_t *start = (uint8_t*)packet;
 	uint16_t payloadLength;
+
 	crc16_update( &crc_val, start, 4 );
 	start = (uint8_t*)&packet->payload[0];
+
 	payloadLength = *(uint16_t*)&packet->lengthInBytes[0];
 	crc16_update( &crc_val, start, payloadLength );
 
@@ -366,32 +369,26 @@ void delay(void)
 			;
 }
 
-void Uart_Interrupt(UINT8 data)
+void Uart_Interrupt(uint8_t data)
 {
 	Uart_SendChar( data ); /* Echos data that is received*/
 }
 
 int main(void)
 {
-	UINT32 counter = 0;
+	uint32_t counter = 0;
 
 	Clk_Init(); /* Configure clocks to run at 20 Mhz */
 	UART_Init(); /*Initialize Uart 2 at 9600 bauds */
 	hardware_init();
-	Uart_SetCallback( Uart_Interrupt ); /* Set the callback function that the UART driver will call when receiving a char */
-	NVIC_EnableIRQ( UART2_IRQn ); /* Enable UART2 interrupt */
+//	Uart_SetCallback( Uart_Interrupt ); /* Set the callback function that the UART driver will call when receiving a char */
+//	NVIC_EnableIRQ( UART2_IRQn ); /* Enable UART2 interrupt */
 
-	while ( 1 )
-		;
-
-	Clk_Init();
-	hardware_init();
-
-	UART_Init();
-	Uart_SetCallback( Uart_Interrupt ); /* Set the callback function that the UART driver will call when receiving a char */
-	NVIC_EnableIRQ( UART2_IRQn ); /* Enable UART2 interrupt */
-
-	Uart_SendChar( 0x55 );
+//	while ( 1 )
+//	{
+//		uint8_t c = read_byte();
+//		Uart_SendChar( c );
+//	}
 
 	if ( stay_in_bootloader() )
 	{
@@ -469,7 +466,7 @@ static status_t handle_get_property(void)
 			packet->propertyValue[0] = 0x4b010300;  // K1.3.0
 			break;
 		case kPropertyTag_AvailablePeripherals:
-			packet->propertyValue[0] = 0x01; // Only UART peripheral is available;
+			packet->propertyValue[0] = 0x01; 		// Only UART peripheral is available;
 			break;
 		case kPropertyTag_FlashStartAddress:
 			packet->propertyValue[0] = 0x00;
