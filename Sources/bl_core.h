@@ -2,6 +2,7 @@
 #define __BL_CORE_H__
 
 #include <stdint.h>
+#include "derivative.h"
 
 
 //! @brief Commands codes.

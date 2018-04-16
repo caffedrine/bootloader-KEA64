@@ -4,9 +4,9 @@
 #include "bl_core.h"
 #include "bl_cfg.h"
 
-#include "SKEAZN642.h"
-#include "Headers/UART.h"
-#include "Headers/CLK.h"
+#include "derivative.h"
+#include "UART.h"
+#include "CLK.h"
 /*
  *
  *  Definitions

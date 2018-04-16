@@ -1,10 +1,4 @@
-/*
- * UART.c
- *
- *  Created on: Dec 18, 2013
- *      Author: B46911
- */
-#include "Headers/UART.h"
+#include "UART.h"
 
 /**********************************************************************************************
  * External objects
@@ -82,8 +76,9 @@ void Uart_SendChar(uint8_t send)
 	while ( (UART2_S1 & UART_S1_TDRE_MASK) == 0 )
 		; /* Wait for transmit buffer to be empty*/
 
-	for ( int i = 0; i <= 2000; i++ )
-		;						// This is devil!
+#ifdef SKEAZN642
+	ICS_C3 = 0x50; 							/* Reference clock frequency = 31.25 kHz*/
+#endif
 
 	(void)UART2_S1; /* Read UART2_S1 register*/
 	UART2_D = send; /* Send data*/

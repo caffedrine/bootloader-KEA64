@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <SKEAZN642.h>
+#include <derivative.h>
 #include "bl_cfg.h"
 
 #define BL_UART     UART2
