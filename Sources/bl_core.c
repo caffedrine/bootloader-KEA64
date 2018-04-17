@@ -212,7 +212,7 @@ static bool is_application_valid(uint32_t sp, uint32_t pc)
  *   Local variables
  */
 static bootloader_context_t bl_ctx;
-
+_Bool ENB_BOOT = 0;						// Load user application by default
 /**********************************************************************************
  *
  *               Code
@@ -378,24 +378,41 @@ int main(void)
 {
 	uint32_t counter = 0;
 
-	Clk_Init(); /* Configure clocks to run at 20 Mhz */
-	UART_Init(); /*Initialize Uart 2 at 9600 bauds */
+	/* Configure clocks to run at 20 Mhz */
+	Clk_Init();
+
+	/*Initialize UART2 at 9600 bauds */
+	UART_Init();
+
+	/* Init hardware and stuff */
 	hardware_init();
-//	Uart_SetCallback( Uart_Interrupt ); /* Set the callback function that the UART driver will call when receiving a char */
-//	NVIC_EnableIRQ( UART2_IRQn ); /* Enable UART2 interrupt */
 
-//	while ( 1 )
-//	{
-//		uint8_t c = read_byte();
-//		Uart_SendChar( c );
-//	}
+	// Init GPIO pin used to enter or not in bootloader
+	CONFIG_PIN_AS_GPIO(ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT);		// Button pin as input as it shall provide a digital value
+	ENABLE_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);					// Enable input on button
+	OUTPUT_CLEAR(LED_PORT, LED_PIN);							// Clear led pin at the beginning
+	CONFIG_PIN_AS_GPIO(LED_PORT, LED_PIN, OUTPUT);				// Led pin as output as there is a LED
+	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
-	if ( stay_in_bootloader() )
+	/* Debug serial *//*
+	while ( 1 )
 	{
+		uint8_t c = read_byte();
+		OUTPUT_SET(LED_PORT, LED_PIN);
+		Uart_SendChar( c );
+		OUTPUT_CLEAR(LED_PORT, LED_PIN);
+	}
+	//*/
+
+	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
+	{
+		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
 		bootloader_run();
 	}
 	else
 	{
+		stay_in_bootloader();
+
 		uint32_t *vectorTable = (uint32_t*)APPLICATION_BASE;
 		uint32_t sp = vectorTable[0];
 		uint32_t pc = vectorTable[1];

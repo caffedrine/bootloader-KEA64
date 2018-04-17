@@ -6,6 +6,24 @@
 /* UART Buadrate */
 #define BL_UART_BAUDRATE                    9600 //115200
 
+/* Pin used to determine which should be loaded on reset: bootloader or user application */
+#ifdef SKEAZ1284
+	#define ENB_BOOT_PIN	PTE4
+	#define ENB_BOOT_PORT	PTE
+#elif ifdef SKEAZN642
+	#define ENB_BOOT_PIN	PTE4
+	#define ENB_BOOT_PORT	PTE
+#endif
+
+/* Led will be ON when bootloader is running */
+#ifdef SKEAZ1284
+	#define LED_PIN 	PTH0
+	#define LED_PORT	PTH
+#elif ifdef SKEAZN642
+	#define LED_PIN 	PTE0
+	#define LED_PORT	PTE
+#endif
+
 /****************************************************
  *
  *    Target specific attributes
@@ -14,11 +32,11 @@
 /* Flash sector size */
 #define TARGET_FLASH_SECTOR_SIZE    512//4096
 /* Flash total size */
-#define TARGET_FLASH_SIZE       64*1024u//1024*1024u
+#define TARGET_FLASH_SIZE       	64*1024u//1024*1024u
 /* SRAM start address */
-#define TARGET_RAM_START        0x1FFFFC00//0x1FFF0000
+#define TARGET_RAM_START        	0x1FFFFC00//0x1FFF0000
 /* SRAM total size */
-#define TARGET_RAM_SIZE         0x1000//0x40000 -> 16k
+#define TARGET_RAM_SIZE         	0x1000//0x40000 -> 16k
 
 
 /****************************************************
