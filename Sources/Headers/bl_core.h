@@ -143,7 +143,26 @@ typedef struct ExecuteCallPacket
 	uint32_t stackpointer;          //!< Parameter 2: stack pointer
 } execute_call_packet_t;
 
+//! @brief Statuses
+enum
+{
+	kStatus_Success = 0,
+	kStatus_Fail = 1,
+	kStatus_InvalidArgument = 4,
+	kStatus_Busy = 15,
+	kStatus_UnknownProperty = 10300,
+
+	kStatus_FlashAlignmentError = 101,
+	kStatus_FlashAccessError = 103,
+	kStatus_FlashProtectionViolation = 104,
+	kStatus_FlashCommandFailure = 105,
+
+	kStatusMemoryRangeInvalid = 10200,
+};
+
 void bootloader_data_sink(uint8_t byte);
 void bootloader_run(void);
+void application_run(uint32_t sp, uint32_t pc);
+
 
 #endif // __BL_CORE_H__

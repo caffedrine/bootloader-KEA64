@@ -1,22 +1,29 @@
 #include <stdint.h>
 
+// Device specific file
+#include "derivative.h"
+
+// Config files
 #include "bl_bsp.h"
 #include "bl_core.h"
 #include "bl_cfg.h"
 
-#include "derivative.h"
+// Drivers
 #include "UART.h"
 #include "CLK.h"
-/*
- *
- *  Definitions
- *
- */
+#include "flash.h"
 
-void Enable_Interrupt(uint8_t vector_number);
-void Uart_Interrupt(uint8_t data);
+// Handle interrupts here
+#include "Events.h"
 
-typedef int32_t status_t;
+// Common definitions
+#include "definitions.h"
+
+//   ____ ___  _   _ ____ _____ ____    _    _   _ _____ ____
+//  / ___/ _ \| \ | / ___|_   _/ ___|  / \  | \ | |_   _/ ___|
+// | |  | | | |  \| \___ \ | | \___ \ / _ \ |  \| | | | \___ \
+// | |__| |_| | |\  |___) || |  ___) / ___ \| |\  | | |  ___) |
+//  \____\___/|_| \_|____/ |_| |____/_/   \_\_| \_| |_| |____/
 
 enum
 {
@@ -46,21 +53,11 @@ enum
 	kPacketState_Payload
 };
 
-enum
-{
-	kStatus_Success = 0,
-	kStatus_Fail = 1,
-	kStatus_InvalidArgument = 4,
-	kStatus_Busy = 15,
-	kStatus_UnknownProperty = 10300,
-
-	kStatus_FlashAlignmentError = 101,
-	kStatus_FlashAccessError = 103,
-	kStatus_FlashProtectionViolation = 104,
-	kStatus_FlashCommandFailure = 105,
-
-	kStatusMemoryRangeInvalid = 10200,
-};
+//	 ____  _____ _____ ___ _   _ ___ _____ ___ ___  _   _ ____
+//	|  _ \| ____|  ___|_ _| \ | |_ _|_   _|_ _/ _ \| \ | / ___|
+//	| | | |  _| | |_   | ||  \| || |  | |  | | | | |  \| \___ \
+//	| |_| | |___|  _|  | || |\  || |  | |  | | |_| | |\  |___) |
+//	|____/|_____|_|   |___|_| \_|___| |_| |___\___/|_| \_|____/
 
 typedef struct _serial_packet
 {
@@ -98,74 +95,6 @@ typedef struct
 	uint8_t option;
 } bootloader_context_t;
 
-/******************************************************************
-
- FLASH related definitions, functions and local variables
-
- *******************************************************************/
-//! @name Flash controller command numbers
-//@{
-#define FTFx_VERIFY_BLOCK                  0x00 //!< RD1BLK
-#define FTFx_VERIFY_SECTION                0x01 //!< RD1SEC
-#define FTFx_PROGRAM_CHECK                 0x02 //!< PGMCHK
-#define FTFx_READ_RESOURCE                 0x03 //!< RDRSRC
-#define FTFx_PROGRAM_LONGWORD              0x06 //!< PGM4
-#define FTFx_PROGRAM_PHRASE                0x07 //!< PGM8
-#define FTFx_ERASE_BLOCK                   0x08 //!< ERSBLK
-#define FTFx_ERASE_SECTOR                  0x09 //!< ERSSCR
-#define FTFx_PROGRAM_SECTION               0x0B //!< PGMSEC
-#define FTFx_VERIFY_ALL_BLOCK              0x40 //!< RD1ALL
-#define FTFx_READ_ONCE                     0x41 //!< RDONCE
-#define FTFx_PROGRAM_ONCE                  0x43 //!< PGMONCE
-#define FTFx_ERASE_ALL_BLOCK               0x44 //!< ERSALL
-#define FTFx_SECURITY_BY_PASS              0x45 //!< VFYKEY
-#define FTFx_ERASE_ALL_BLOCK_UNSECURE      0x49 //!< ERSALLU
-#define FTFx_SWAP_CONTROL                  0x46 //!< SWAP
-#define FTFx_SET_FLEXRAM_FUNCTION          0x81 //!< SETRAM
-//@}
-
-#if defined (FTFE)
-#define FTFx    FTFE
-#define BL_FEATURE_PROGRAM_PHASE    1
-#elif defined (FTFL)
-#define FTFx    FTFL
-#define BL_FEATURE_PROGRAM_PHASE    0
-#elif defined (FTFA)
-#define FTFx    FTFA
-#define BL_FEATURE_PROGRAM_PHASE    0
-#elif defined (FTMRE)
-#define FTFx    FTMRE
-#define BL_FEATURE_PROGRAM_PHASE    0
-#endif //
-
-#define FTFx_FSTAT_CCIF_MASK        0x80u
-#define FTFx_FSTAT_RDCOLERR_MASK    0x40u
-#define FTFx_FSTAT_ACCERR_MASK      0x20u
-#define FTFx_FSTAT_FPVIOL_MASK      0x10u
-#define FTFx_FSTAT_MGSTAT0_MASK     0x01u
-#define FTFx_FSEC_SEC_MASK          0x03u
-
-volatile uint32_t* const kFCCOBx =
-		#if defined(FTFE)
-		(volatile uint32_t*)&FTFE->FCCOB3;
-#elif defined (FTEL)
-		(volatile uint32_t*)&FTFL->FCCOB3;
-#elif defined (FTFA)
-		(volatile uint32_t*)&FTFA->FCCOB3;
-#elif defined (FTMRH)
-		(volatile uint32_t*)&FTMRH->FCCOBIX;
-#endif
-
-const uint8_t s_flash_command_run[] = { 0x00, 0xB5, 0x80, 0x21, 0x01, 0x70, 0x01, 0x78, 0x09, 0x06, 0xFC, 0xD5, 0x00, 0xBD };
-static uint32_t s_flash_ram_function[8];
-typedef void (*flash_run_entry_t)(volatile uint8_t *reg);
-flash_run_entry_t s_flash_run_entry;
-static status_t flash_program(uint32_t start, uint32_t *src, uint32_t length);
-static status_t flash_erase(uint32_t start, uint32_t length);
-#if BL_FEATURE_VERIFY
-static status_t flash_verify_program(uint32_t start, const uint32_t *expectedData, uint32_t length);
-#endif
-static void flash_init(void);
 
 /*****************************************************************************************
 
@@ -186,20 +115,6 @@ status_t serial_packet_write(void);
 void crc16_update(uint16_t *currectCrc, const uint8_t *src, uint32_t lengthInBytes);
 uint16_t calculate_crc(serial_packet_t *packet);
 
-/*
- *   Local functions
- */
-static void application_run(uint32_t sp, uint32_t pc);
-__STATIC_INLINE uint32_t align_down(uint32_t data, uint32_t base)
-{
-	return (data & ~(base - 1));
-}
-
-__STATIC_INLINE uint32_t align_up(uint32_t data, uint32_t base)
-{
-	return align_down( data + base - 1, base );
-}
-
 static bool is_application_valid(uint32_t sp, uint32_t pc)
 {
 	bool spValid = ((sp > TARGET_RAM_START) && (sp <= (TARGET_RAM_START + TARGET_RAM_SIZE)));
@@ -212,7 +127,8 @@ static bool is_application_valid(uint32_t sp, uint32_t pc)
  *   Local variables
  */
 static bootloader_context_t bl_ctx;
-_Bool ENB_BOOT = 0;						// Load user application by default
+static _Bool ENB_BOOT = 0;						// Load user application by default
+
 /**********************************************************************************
  *
  *               Code
@@ -360,69 +276,6 @@ static status_t serial_packet_read(uint8_t packetType)
 	}
 }
 
-void delay(void)
-{
-	uint32_t i, j;
-	for ( i = 0; i < 8; i++ )
-		for ( j = 0; j < 65535; j++ )
-			//for (j = 0; j < 1000; j++)
-			;
-}
-
-void Uart_Interrupt(uint8_t data)
-{
-	Uart_SendChar( data ); /* Echos data that is received*/
-}
-
-int main(void)
-{
-	uint32_t counter = 0;
-
-	/* Configure clocks to run at 20 Mhz */
-	Clk_Init();
-
-	/*Initialize UART2 at 9600 bauds */
-	UART_Init();
-
-	/* Init hardware and stuff */
-	hardware_init();
-
-	// Init GPIO pin used to enter or not in bootloader
-	CONFIG_PIN_AS_GPIO(ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT);		// Button pin as input as it shall provide a digital value
-	ENABLE_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);					// Enable input on button
-	OUTPUT_CLEAR(LED_PORT, LED_PIN);							// Clear led pin at the beginning
-	CONFIG_PIN_AS_GPIO(LED_PORT, LED_PIN, OUTPUT);				// Led pin as output as there is a LED
-	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
-
-	/* Debug serial *//*
-	while ( 1 )
-	{
-		uint8_t c = read_byte();
-		OUTPUT_SET(LED_PORT, LED_PIN);
-		Uart_SendChar( c );
-		OUTPUT_CLEAR(LED_PORT, LED_PIN);
-	}
-	//*/
-
-	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
-	{
-		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
-		bootloader_run();
-	}
-	else
-	{
-		stay_in_bootloader();
-
-		uint32_t *vectorTable = (uint32_t*)APPLICATION_BASE;
-		uint32_t sp = vectorTable[0];
-		uint32_t pc = vectorTable[1];
-		application_run( sp, pc );
-	}
-
-// Should never reach here.
-	return 0;
-}
-
 status_t serial_packet_write(void)
 {
 	uint16_t packetLength;
@@ -548,231 +401,6 @@ status_t send_generic_response(uint32_t commandTag, uint32_t status)
 	return serial_packet_write();
 }
 
-bool is_valid_memory_range(uint32_t start, uint32_t length)
-{
-	bool isValid = true;
-	if ( (start < APPLICATION_BASE) || ((start + length) < APPLICATION_BASE) )
-	{
-		isValid = false;
-	}
-
-	return isValid;
-}
-
-void flash_init(void)
-{
-	uint32_t i;
-	uint8_t *ram_func_start = (uint8_t*)&s_flash_ram_function[0];
-
-	for ( i = 0; i < sizeof(s_flash_command_run); i++ )
-	{
-		*ram_func_start++ = s_flash_command_run[i];
-	}
-
-	s_flash_run_entry = (flash_run_entry_t)((uint32_t)s_flash_ram_function + 1);
-}
-
-status_t flash_command_sequence(void)
-{
-	uint8_t fstat;
-	status_t status = kStatus_Success;
-	FTMRH_FSTAT = (FTFx_FSTAT_RDCOLERR_MASK | FTFx_FSTAT_ACCERR_MASK | FTFx_FSTAT_FPVIOL_MASK);
-
-	__disable_irq();
-	s_flash_run_entry( &FTMRH_FSTAT );
-	__enable_irq();
-
-	fstat = FTMRH_FSTAT;
-
-	if ( fstat & FTFx_FSTAT_ACCERR_MASK )
-	{
-		status = kStatus_FlashAccessError;
-	}
-	else if ( fstat & FTFx_FSTAT_FPVIOL_MASK )
-	{
-		status = kStatus_FlashProtectionViolation;
-	}
-	else if ( fstat & FTFx_FSTAT_MGSTAT0_MASK )
-	{
-		status = kStatus_FlashCommandFailure;
-	}
-
-	return status;
-}
-
-status_t flash_erase(uint32_t start, uint32_t length)
-{
-	uint32_t alignedStart;
-	uint32_t alignedLength;
-	status_t status = kStatus_Success;
-	alignedStart = align_down( start, TARGET_FLASH_SECTOR_SIZE );
-	alignedLength = align_up( start - alignedStart + length, TARGET_FLASH_SECTOR_SIZE );
-
-	while ( alignedLength )
-	{
-#if defined (FTMRE)  //JJ ADDER
-		// Clear error flags
-		FTMRE_FSTAT = 0x30;
-
-		// Write index to specify the command code to be loaded
-		FTMRE_FCCOBIX = 0x0;
-		// Write command code and memory address bits[23:16]
-		FTMRE_FCCOBHI = 0x0A;// EEPROM FLASH command
-		FTMRE_FCCOBLO = start>>16;// memory address bits[23:16]
-		// Write index to specify the lower byte memory address bits[15:0] to be loaded
-		FTMRE_FCCOBIX = 0x1;
-		// Write the lower byte memory address bits[15:0]
-		FTMRE_FCCOBLO = start;
-		FTMRE_FCCOBHI = start>>8;
-#else
-		kFCCOBx[0] = alignedStart;
-		FTMRH_FCCOBIX = FTFx_ERASE_SECTOR;
-#endif
-		status = flash_command_sequence();
-		if ( status != kStatus_Success )
-		{
-			break;
-		}
-		alignedStart += TARGET_FLASH_SECTOR_SIZE;
-		alignedLength -= TARGET_FLASH_SECTOR_SIZE;
-	}
-
-	return status;
-}
-
-#if BL_FEATURE_VERIFY
-static status_t flash_verify_program(uint32_t start, const uint32_t *expectedData, uint32_t lengthInBytes)
-{
-	status_t status = kStatus_Success;
-	while(lengthInBytes)
-	{
-		kFCCOBx[0] = start;
-		FTFx->FCCOB0 = FTFx_PROGRAM_CHECK;
-		FTFx->FCCOB4 = 1; // 0-Normal, 1-User, 2-Factory
-		kFCCOBx[2] = *expectedData;
-
-		status = flash_command_sequence();
-		if (kStatus_Success != status)
-		{
-			break;
-		}
-		else
-		{
-			start += 4;
-			expectedData++;
-			lengthInBytes -= 4;
-		}
-	}
-	return status;
-}
-#endif
-
-static status_t flash_program(uint32_t start, uint32_t *src, uint32_t length)
-{
-	status_t status = kStatus_Success;
-	uint8_t *byteSrcStart;
-	uint32_t i;
-#if BL_FEATURE_PROGRAM_PHASE
-	uint8_t alignmentSize = 8;
-#else
-	uint8_t alignmentSize = 4;
-#endif
-
-#if BL_FEATURE_VERIFY
-	uint32_t *compareSrc = (uint32_t*)src;
-	uint32_t compareDst = start;
-	uint32_t compareLength = align_up(length, alignmentSize);
-#endif 
-
-	if ( start & (alignmentSize - 1) )
-	{
-		status = kStatus_FlashAlignmentError;
-	}
-	else if ( !is_valid_memory_range( start, length ) )
-	{
-		status = kStatusMemoryRangeInvalid;
-	}
-	else
-	{
-		while ( length )
-		{
-			if ( length < alignmentSize )
-			{
-				byteSrcStart = (uint8_t*)src;
-				for ( i = length; i < alignmentSize; i++ )
-				{
-					byteSrcStart[i] = 0xFF;
-				}
-			}
-#if defined (FTMRE)  //JJ ADDER
-			FTMRE_FSTAT = 0x30;
-			// Write index to specify the command code to be loaded
-			FTMRE_FCCOBIX = 0x0;
-			// Write command code and memory address bits[23:16]
-			FTMRE_FCCOBHI = 0x06;// program FLASH command
-			FTMRE_FCCOBLO = start>>16;// memory address bits[23:16]
-			// Write index to specify the lower byte memory address bits[15:0] to be loaded
-			FTMRE_FCCOBIX = 0x1;
-			// Write the lower byte memory address bits[15:0]
-			FTMRE_FCCOBLO = start;
-			FTMRE_FCCOBHI = start>>8;
-			// Write index to specify the word0 (MSB word) to be programmed
-			FTMRE_FCCOBIX = 0x2;
-#if     defined(BIG_ENDIAN)        
-			// Write the word  0
-			FTMRE_FCCOBHI = (*src>>16)>>8;
-			FTMRE_FCCOBLO = (*src>>16);
-#else        
-			FTMRE_FCCOBHI = (*src) >>8;
-			FTMRE_FCCOBLO = (*src);
-#endif        
-			// Write index to specify the word1 (LSB word) to be programmed
-			FTMRE_FCCOBIX = 0x3;
-			// Write the word1
-#if     defined(BIG_ENDIAN)        
-			FTMRE_FCCOBHI = (*src) >>8;
-			FTMRE_FCCOBLO = (*src);
-#else
-			FTMRE_FCCOBHI = (*src>>16)>>8;
-			FTMRE_FCCOBLO = (*src>>16);
-#endif  	
-
-			src = src+1;
-
-#else  //JJADDER 
-
-			kFCCOBx[0] = start;
-			kFCCOBx[1] = *src++;
-#if BL_FEATURE_PROGRAM_PHASE
-			kFCCOBx[2] = *src++;
-#endif
-#if BL_FEATURE_PROGRAM_PHASE
-			FTFx->FCCOB0 = FTFx_PROGRAM_PHRASE;
-#else
-			FTMRH_FCCOBIX = FTFx_PROGRAM_LONGWORD;
-#endif
-
-#endif
-			status = flash_command_sequence();
-			if ( status != kStatus_Success )
-			{
-				break;
-			}
-			start += alignmentSize;
-			length -= (length > alignmentSize) ? alignmentSize : length;
-		}
-	}
-
-#if BL_FEATURE_VERIFY  //zero, not used
-	if (kStatus_Success == status)
-	{
-		status = flash_verify_program(compareDst, compareSrc, compareLength);
-	}
-#endif
-
-	return status;
-}
-
 static status_t handle_flash_erase_region(void)
 {
 	status_t status = kStatus_Success;
@@ -874,6 +502,29 @@ static status_t handle_data_phase(bool *hasMoreData)
 	return kStatus_Success;
 }
 
+void application_run(uint32_t sp, uint32_t pc)
+{
+	typedef void (*app_entry_t)(void);
+
+	static uint32_t s_stackPointer = 0;
+	static uint32_t s_applicationEntry = 0;
+	static app_entry_t s_application = 0;
+
+	s_stackPointer = sp;
+	s_applicationEntry = pc;
+	s_application = (app_entry_t)s_applicationEntry;
+
+// Change MSP and PSP
+	__set_MSP( s_stackPointer );
+	__set_PSP( s_stackPointer );
+
+// Jump to application
+	s_application();
+
+// Should never reach here.
+	__NOP();
+}
+
 void bootloader_run(void)
 {
 	command_packet_t *commandPkt;
@@ -929,34 +580,51 @@ void bootloader_run(void)
 	}
 }
 
-void application_run(uint32_t sp, uint32_t pc)
+int main(void)
 {
-	typedef void (*app_entry_t)(void);
+	uint32_t counter = 0;
 
-	static uint32_t s_stackPointer = 0;
-	static uint32_t s_applicationEntry = 0;
-	static app_entry_t s_application = 0;
+	/* Configure clocks to run at 20 Mhz */
+	Clk_Init();
 
-	s_stackPointer = sp;
-	s_applicationEntry = pc;
-	s_application = (app_entry_t)s_applicationEntry;
+	/*Initialize UART2 at 9600 bauds */
+	UART_Init();
 
-// Change MSP and PSP
-	__set_MSP( s_stackPointer );
-	__set_PSP( s_stackPointer );
+	/* Init hardware and stuff */
+	hardware_init();
 
-// Jump to application
-	s_application();
+	// Init GPIO pin used to enter or not in bootloader
+	CONFIG_PIN_AS_GPIO(ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT);		// Button pin as input as it shall provide a digital value
+	ENABLE_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);					// Enable input on button
+	OUTPUT_CLEAR(LED_PORT, LED_PIN);							// Clear led pin at the beginning
+	CONFIG_PIN_AS_GPIO(LED_PORT, LED_PIN, OUTPUT);				// Led pin as output as there is a LED
+	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
-// Should never reach here.
-	__NOP();
-}
-
-void HardFault_Handler(void)
-{
-	NVIC_SystemReset();
-
+	/* Debug serial *//*
 	while ( 1 )
 	{
+		uint8_t c = read_byte();
+		OUTPUT_SET(LED_PORT, LED_PIN);
+		Uart_SendChar( c );
+		OUTPUT_CLEAR(LED_PORT, LED_PIN);
 	}
+	//*/
+
+	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
+	{
+		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
+		bootloader_run();
+	}
+	else
+	{
+		stay_in_bootloader();
+
+		uint32_t *vectorTable = (uint32_t*)APPLICATION_BASE;
+		uint32_t sp = vectorTable[0];
+		uint32_t pc = vectorTable[1];
+		application_run( sp, pc );
+	}
+
+// Should never reach here.
+	return 0;
 }
