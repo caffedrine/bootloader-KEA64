@@ -4,13 +4,13 @@
 #include "derivative.h"
 
 // Config files
-#include "bl_bsp.h"
+#include "bl_bsp.h"		// Hardware initialization
 #include "bl_core.h"
 #include "bl_cfg.h"
 
 // Drivers
-#include "UART.h"
 #include "CLK.h"
+#include "CRC.h"
 #include "flash.h"
 
 // Handle interrupts here
@@ -106,14 +106,30 @@ static const uint8_t s_packet_ack[] = { kFramingPacketStartByte, kFramingPacketT
 static const uint8_t s_packet_nak[] = { kFramingPacketStartByte, kFramingPacketType_Nak };
 static const uint8_t s_packet_abort[] = { kFramingPacketStartByte, kFramingPacketType_AckAbort };
 static serial_context_t s_serialContext;
-static serial_packet_t s_readPacket;
-static serial_packet_t s_writePacket;
+
+static serial_packet_t s_readPacket;	// Read packet
+static serial_packet_t s_writePacket;	// Write packet
 
 static uint8_t read_byte(void);
 static status_t serial_packet_read(uint8_t packetType);
 status_t serial_packet_write(void);
-void crc16_update(uint16_t *currectCrc, const uint8_t *src, uint32_t lengthInBytes);
 uint16_t calculate_crc(serial_packet_t *packet);
+
+
+//	__     ___    ____  ____
+//	\ \   / / \  |  _ \/ ___|
+//	 \ \ / / _ \ | |_) \___ \
+//	  \ V / ___ \|  _ < ___) |
+//	   \_/_/   \_\_| \_\____/
+
+static bootloader_context_t bl_ctx;
+static _Bool ENB_BOOT = 0;						// Load user application by default
+
+//	  ____ ___  ____  _____
+//	 / ___/ _ \|  _ \| ____|
+//	| |  | | | | | | |  _|
+//	| |__| |_| | |_| | |___
+//	 \____\___/|____/|_____|
 
 static bool is_application_valid(uint32_t sp, uint32_t pc)
 {
@@ -121,40 +137,6 @@ static bool is_application_valid(uint32_t sp, uint32_t pc)
 	bool pcValid = ((pc >= APPLICATION_BASE) && (pc < TARGET_FLASH_SIZE));
 
 	return spValid && pcValid;
-}
-
-/*
- *   Local variables
- */
-static bootloader_context_t bl_ctx;
-static _Bool ENB_BOOT = 0;						// Load user application by default
-
-/**********************************************************************************
- *
- *               Code
- *
- ***********************************************************************************/
-
-void crc16_update(uint16_t *currectCrc, const uint8_t *src, uint32_t lengthInBytes)
-{
-	uint32_t crc = *currectCrc;
-	uint32_t j;
-	for ( j = 0; j < lengthInBytes; ++j )
-	{
-		uint32_t i;
-		uint32_t byte = src[j];
-		crc ^= byte << 8;
-		for ( i = 0; i < 8; ++i )
-		{
-			uint32_t temp = crc << 1;
-			if ( crc & 0x8000 )
-			{
-				temp ^= 0x1021;
-			}
-			crc = temp;
-		}
-	}
-	*currectCrc = crc;
 }
 
 uint16_t calculate_crc(serial_packet_t *packet)
@@ -582,22 +564,19 @@ void bootloader_run(void)
 
 int main(void)
 {
-	uint32_t counter = 0;
-
 	/* Configure clocks to run at 20 Mhz */
 	Clk_Init();
 
 	/*Initialize UART2 at 9600 bauds */
-	UART_Init();
+	Uart_init();
 
 	/* Init hardware and stuff */
 	hardware_init();
 
-	// Init GPIO pin used to enter or not in bootloader
-	CONFIG_PIN_AS_GPIO(ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT);		// Button pin as input as it shall provide a digital value
-	ENABLE_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);					// Enable input on button
-	OUTPUT_CLEAR(LED_PORT, LED_PIN);							// Clear led pin at the beginning
-	CONFIG_PIN_AS_GPIO(LED_PORT, LED_PIN, OUTPUT);				// Led pin as output as there is a LED
+	/* Initialize GPIO pins. E.g. led used to signal bootloader runing*/
+	pins_init();
+
+	// Enter in in bootloader if defined button is pressed
 	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
 	/* Debug serial *//*
@@ -625,6 +604,6 @@ int main(void)
 		application_run( sp, pc );
 	}
 
-// Should never reach here.
+	// Should never reach here.
 	return 0;
 }

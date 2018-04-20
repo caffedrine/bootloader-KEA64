@@ -1,42 +1,56 @@
+//	  _   ___        __    ____ ___  _   _ _____ ___ ____
+//	 | | | \ \      / /   / ___/ _ \| \ | |  ___|_ _/ ___|
+//	 | |_| |\ \ /\ / /   | |  | | | |  \| | |_   | | |  _
+//	 |  _  | \ V  V /    | |__| |_| | |\  |  _|  | | |_| |
+//	 |_| |_|  \_/\_/      \____\___/|_| \_|_|   |___\____|
 #ifndef __BL_BSP_H__
 #define __BL_BSP_H__
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <derivative.h>
+
 #include "bl_cfg.h"
+#include "gpio.h"
 
-#define BL_UART     UART2
-
-__STATIC_INLINE void uart_init(void)
+__STATIC_INLINE void Uart_init(void)
 {
-	/*
-	 SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
+    uint16_t u16Sbr;
+    uint8_t u8Temp;
 
-	 //Make sure that the transmitter and receiver are disabled while we
-	 //change settings.
-	 BL_UART->C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+	/* Enable the clock to the selected UART */
+    if (BL_UART == UART0)
+	{
+		SIM->SCGC |= SIM_SCGC_UART0_MASK;
+	}
+	else if (BL_UART == UART1)
+	{
+        SIM->SCGC |= SIM_SCGC_UART1_MASK;
+	}
+    else
+	{
+        SIM->SCGC |= SIM_SCGC_UART2_MASK;
+	}
 
-	 // Configure the uart for 8-bit mode, no parity
-	 BL_UART->C1 = 0;    // We need all default settings, so entire register is cleared
+    /* Make sure that the transmitter and receiver are disabled while we
+     * change settings.
+     */
+    BL_UART->C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
 
-	 BL_UART->BDH = 0x00;
-	 BL_UART->BDL = 0x0B;
-	 BL_UART->C4 = 0x0B;
+    /* Configure the UART for 8-bit mode, no parity */
+    BL_UART->C1 = 0;
 
-	 // Flush the RX and TX FIFO's
-	 BL_UART->CFIFO = UART_CFIFO_RXFLUSH_MASK | UART_CFIFO_TXFLUSH_MASK;
+    /* Calculate baud settings */
+    u16Sbr = ((( DEFAULT_SYSTEM_CLOCK / 2 )>>4) + (BL_UART_BAUDRATE>>1))/BL_UART_BAUDRATE;
 
-	 // Enable receiver and transmitter
-	 BL_UART->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
-	 */
-	SIM_SCGC |= SIM_SCGC_UART2_MASK;    /* Enable bus clock in UART2*/
-	UART2_BDH = 0; 						/* One stop bit*/
-	UART2_BDL = 128; 					/* Baud rate at 9600*/
-	UART2_C1 = 0; 						/* No parity enable,8 bit format*/
-	UART2_C2 |= UART_C2_TE_MASK; 		/* Enable Transmitter*/
-	UART2_C2 |= UART_C2_RE_MASK; 		/* Enable Receiver*/
-	UART2_C2 |= UART_C2_RIE_MASK; 		/* Enable Receiver interrupts*/
+    /* Save off the current value of the UARTx_BDH except for the SBR field */
+    u8Temp = BL_UART->BDH & ~(UART_BDH_SBR_MASK);
+
+    BL_UART->BDH = u8Temp |  UART_BDH_SBR(u16Sbr >> 8);
+    BL_UART->BDL = 128;//(uint8_t)(u16Sbr & UART_BDL_SBR_MASK);								//!!!!!
+
+    /* Enable receiver and transmitter */
+    BL_UART->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
 }
 
 __STATIC_INLINE void hardware_init(void)
@@ -91,13 +105,24 @@ __STATIC_INLINE void hardware_init(void)
 	 */
 }
 
+__STATIC_INLINE void pins_init(void)
+{
+	// Init GPIO pin used to enter or not in bootloader
+	CONFIG_PIN_AS_GPIO( ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT );		// Button pin as input as it shall provide a digital value
+	ENABLE_INPUT( ENB_BOOT_PORT, ENB_BOOT_PIN );					// Enable input on button
+	OUTPUT_CLEAR( LED_PORT, LED_PIN );								// Clear led pin at the beginning
+	CONFIG_PIN_AS_GPIO( LED_PORT, LED_PIN, OUTPUT );				// Led pin as output as there is a LED
+
+	// Other pins used as GPIO
+}
+
 __STATIC_INLINE bool stay_in_bootloader(void)
 {
 	uint32_t *vectorTable = (uint32_t*)APPLICATION_BASE;
 	uint32_t pc = vectorTable[1];
 	if ( pc < APPLICATION_BASE || pc > TARGET_FLASH_SIZE )
 	{
-		uart_init();
+		Uart_init();
 		return true;
 	}
 	else
