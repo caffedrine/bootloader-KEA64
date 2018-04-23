@@ -20,7 +20,7 @@ void Clk_Init();
 
 void Clk_Init()
 {
-	ICS_C1|=ICS_C1_IRCLKEN_MASK; 			/* Enable the internal reference clock*/ 
+	ICS_C1|=ICS_C1_IRCLKEN_MASK; 			/* Enable the internal reference clock*/
 #ifdef SKEAZ1284
 	ICS_C3 = 0x90; 							/* Reference clock frequency = 31.25 kHz*/
 #elif defined SKEAZN642

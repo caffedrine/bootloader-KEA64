@@ -97,9 +97,7 @@ typedef struct
 
 
 /*****************************************************************************************
-
  Packet related definitions, functions and variables.
-
  ******************************************************************************************/
 static const uint8_t s_pingPacket[] = { kFramingPacketStartByte, kFramingPacketType_PingResponse, 0, 2, 1, 'P', 0, 0, 0xaa, 0xea };
 static const uint8_t s_packet_ack[] = { kFramingPacketStartByte, kFramingPacketType_Ack };
@@ -114,7 +112,6 @@ static uint8_t read_byte(void);
 static status_t serial_packet_read(uint8_t packetType);
 status_t serial_packet_write(void);
 uint16_t calculate_crc(serial_packet_t *packet);
-
 
 //	__     ___    ____  ____
 //	\ \   / / \  |  _ \/ ___|
@@ -521,9 +518,9 @@ void bootloader_run(void)
 		status = serial_packet_read( packetType );
 
 		if ( status != kStatus_Success )
-		{
 			continue;
-		}
+
+		int a = 0;
 
 		switch ( bl_ctx.state )
 		{
@@ -571,25 +568,27 @@ int main(void)
 	Uart_init();
 
 	/* Init hardware and stuff */
-	hardware_init();
+	int initState = hardware_init();
 
-	/* Initialize GPIO pins. E.g. led used to signal bootloader runing*/
+	/* Initialize GPIO pins. E.g. led used to signal bootloader running*/
 	pins_init();
 
 	// Enter in in bootloader if defined button is pressed
 	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
-	/* Debug serial *//*
+	//* Debug serial *//*
 	while ( 1 )
 	{
-		uint8_t c = read_byte();
+		uint8_t c = bl_hw_if_read_byte();
 		OUTPUT_SET(LED_PORT, LED_PIN);
-		Uart_SendChar( c );
+		const char *str = "Tarzaaaaaaaaaaaaaaaaaaaaaan!\r\n";
+		bl_hw_if_write(str, 30);
 		OUTPUT_CLEAR(LED_PORT, LED_PIN);
 	}
 	//*/
 
-	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
+	//if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
+	if ( stay_in_bootloader() )
 	{
 		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
 		bootloader_run();
