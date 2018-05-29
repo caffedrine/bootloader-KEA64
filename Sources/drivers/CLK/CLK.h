@@ -24,11 +24,11 @@ void Clk_Init()
 #ifdef SKEAZ1284
 	ICS_C3 = 0x90; 							/* Reference clock frequency = 31.25 kHz*/
 #elif defined SKEAZN642
-	ICS_C3 = 0x50; 							/* Reference clock frequency = 32.25...kHz*/
+	ICS_C3 = 0x50; 							/* Reference clock frequency = 31.25 kHz*/
 #endif
 	while(!(ICS_S & ICS_S_LOCK_MASK));  	/* Wait for PLL lock, now running at 40 MHz (1280 * 31.25Khz) */		
     ICS_C2|=ICS_C2_BDIV(1)  ; 				/*BDIV=2, Bus clock = 20 MHz*/
-	//ICS_S |= ICS_S_LOCK_MASK ; 			/* Clear Loss of lock sticky bit */
+	//ICS_S |= ICS_S_LOCK_MASK ; 				/* Clear Loss of lock sticky bit */
 }
 
 #endif /* CLK_H_ */

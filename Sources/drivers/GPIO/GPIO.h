@@ -54,7 +54,6 @@
 #ifndef PTA
 	#define PTA     GPIOA_BASE_PTR
 #endif
-
 #define PTB     GPIOA_BASE_PTR
 #define PTC     GPIOA_BASE_PTR
 #define PTD     GPIOA_BASE_PTR
@@ -110,7 +109,7 @@
  * 
  **********************************************************/
 #define OUTPUT_SET(port,port_pin)					XOUTPUT_SET(port,port_pin)
-#define XOUTPUT_SET(port,port_pin)					port->PCOR |=(1<<port_pin)
+#define XOUTPUT_SET(port,port_pin)					port->PSOR |=(1<<port_pin)
 
 /***********************************************************
  * 
@@ -118,7 +117,7 @@
  * 
  **********************************************************/
 #define OUTPUT_CLEAR(port,port_pin)					XOUTPUT_CLEAR(port,port_pin)		
-#define XOUTPUT_CLEAR(port,port_pin)				port->PSOR |=(1<<port_pin)
+#define XOUTPUT_CLEAR(port,port_pin)				port->PCOR |=(1<<port_pin)
 
 /***********************************************************
  * 

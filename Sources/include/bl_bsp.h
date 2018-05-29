@@ -118,7 +118,11 @@ __STATIC_INLINE void pins_init(void)
 	OUTPUT_CLEAR( LED_PORT, LED_PIN );								// Clear led pin at the beginning
 	CONFIG_PIN_AS_GPIO( LED_PORT, LED_PIN, OUTPUT );				// Led pin as output as there is a LED
 
-	// Other pins used as GPIO
+	CONFIG_PIN_AS_GPIO(DATA_OUT_LED_PORT, DATA_OUT_LED_BIT, OUTPUT);
+	CONFIG_PIN_AS_GPIO(DATA_IN_LED_PORT, DATA_IN_LED_BIT, OUTPUT);
+
+	OUTPUT_CLEAR(DATA_IN_LED_PORT, DATA_IN_LED_BIT);
+	OUTPUT_CLEAR(DATA_OUT_LED_PORT, DATA_OUT_LED_BIT);
 }
 
 __STATIC_INLINE bool stay_in_bootloader(void)
@@ -140,12 +144,13 @@ __STATIC_INLINE void bl_hw_if_write(const uint8_t *buffer, uint32_t length)
 {
 	while ( length-- )
 	{
-		while ( !(BL_UART->S1 & UART_S1_TDRE_MASK) );
+		OUTPUT_SET(DATA_OUT_LED_PORT, DATA_OUT_LED_BIT);
 
-//		for ( int i = 0; i <= 2000; i++ )
-//			;						// This is devil!
+		while ( !(BL_UART->S1 & UART_S1_TDRE_MASK) );
 		(void)BL_UART->S1;	/* Read UART2_S1 register*/
 		BL_UART->D = *buffer++;
+
+		OUTPUT_CLEAR(DATA_OUT_LED_PORT, DATA_OUT_LED_BIT);
 	}
 }
 
@@ -153,8 +158,13 @@ __STATIC_INLINE uint8_t bl_hw_if_read_byte(void)
 {
 	while ( !(BL_UART->S1 & UART_S1_RDRF_MASK) );
 
+	OUTPUT_SET(DATA_IN_LED_PORT, DATA_IN_LED_BIT);
+
 	(void)BL_UART->S1;	/* Read UART2_S1 register*/
 	return BL_UART->D;	/* Return data */
+
+	OUTPUT_CLEAR(DATA_IN_LED_PORT, DATA_IN_LED_BIT);
+
 }
 
 #endif // __BL_BSP_H__

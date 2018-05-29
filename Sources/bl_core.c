@@ -574,9 +574,9 @@ int main(void)
 	pins_init();
 
 	// Enter in in bootloader if defined button is pressed
-	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
+	ENB_BOOT = true; //READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
-	//* Debug serial *//*
+	/* Debug serial *//*
 	while ( 1 )
 	{
 		uint8_t c = bl_hw_if_read_byte();
@@ -587,8 +587,8 @@ int main(void)
 	}
 	//*/
 
-	//if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
-	if ( stay_in_bootloader() )
+	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
+	//if ( stay_in_bootloader() )
 	{
 		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
 		bootloader_run();

@@ -14,8 +14,8 @@
 	#define ENB_BOOT_PIN	PTE4
 	#define ENB_BOOT_PORT	PTE
 #elif defined(SKEAZN642)
-	#define ENB_BOOT_PIN	PTE4
-	#define ENB_BOOT_PORT	PTE
+	#define ENB_BOOT_PIN	PTD0
+	#define ENB_BOOT_PORT	PTD
 #endif
 
 /* Led will be TRUE (5V) when bootloader is running */
@@ -23,8 +23,13 @@
 	#define LED_PIN 	PTH0
 	#define LED_PORT	PTH
 #elif defined(SKEAZN642)
-	#define LED_PIN 	PTE0
-	#define LED_PORT	PTE
+	#define LED_PIN 	PTC0
+	#define LED_PORT	PTC
+
+	#define DATA_IN_LED_BIT		PTC2
+	#define DATA_IN_LED_PORT	PTC
+	#define DATA_OUT_LED_BIT	PTC3
+	#define	DATA_OUT_LED_PORT	PTC
 #endif
 
 /****************************************************
