@@ -42,8 +42,8 @@ enum _command_tags
 //! @brief Command packet format.
 typedef struct CommandPacket
 {
-	uint8_t commandTag;         //!< A command tag.
 	uint8_t flags;              //!< Combination of packet flags.
+	uint8_t commandTag;         //!< A command tag.
 	uint8_t reserved;           //!< Reserved, helpful for alignment, set to zero.
 	uint8_t parameterCount;     //!< Number of parameters that follow in buffer.
 } command_packet_t;
