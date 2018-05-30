@@ -9,9 +9,11 @@
 #include "bl_cfg.h"
 
 // Drivers
-#include "CLK.h"
 #include "CRC.h"
 #include "flash.h"
+#include "GPIO/GPIO.h"
+#include "CLK/CLK.h"
+#include "UART/UART.h"
 
 // Handle interrupts here
 #include "Events.h"
@@ -97,7 +99,9 @@ typedef struct
 
 
 /*****************************************************************************************
+
  Packet related definitions, functions and variables.
+
  ******************************************************************************************/
 static const uint8_t s_pingPacket[] = { kFramingPacketStartByte, kFramingPacketType_PingResponse, 0, 2, 1, 'P', 0, 0, 0xaa, 0xea };
 static const uint8_t s_packet_ack[] = { kFramingPacketStartByte, kFramingPacketType_Ack };
@@ -112,6 +116,7 @@ static uint8_t read_byte(void);
 static status_t serial_packet_read(uint8_t packetType);
 status_t serial_packet_write(void);
 uint16_t calculate_crc(serial_packet_t *packet);
+
 
 //	__     ___    ____  ____
 //	\ \   / / \  |  _ \/ ___|
@@ -156,6 +161,106 @@ static uint8_t read_byte(void)
 	return bl_hw_if_read_byte();
 }
 
+static status_t serial_packet_read(uint8_t packetType)
+{
+	static int32_t s_packetState = kPacketState_StartByte;
+	static uint32_t s_stateCnt;
+	uint16_t calculatedCrc;
+	uint16_t receivedCrc;
+	uint16_t *packetLength;
+	uint8_t *payloadStart = (uint8_t*)&s_readPacket.payload[0];
+	bool isPacketComplete = false;
+	uint8_t tmp;
+
+	if ( s_serialContext.isAckNeeded )
+	{
+		s_serialContext.isAckNeeded = false;
+		bl_hw_if_write( s_packet_ack, sizeof(s_packet_ack) );
+	}
+
+	tmp = read_byte();
+	switch ( s_packetState )
+	{
+		case kPacketState_StartByte:
+			if ( tmp == kFramingPacketStartByte )
+			{
+				s_readPacket.startByte = kFramingPacketStartByte;
+				s_packetState = kPacketState_PacketTye;
+			}
+			break;
+		case kPacketState_PacketTye:
+			if ( tmp == kFramingPacketType_Ping )
+			{
+				// Send ping packet here.
+				bl_hw_if_write( (void*)s_pingPacket, sizeof(s_pingPacket) );
+				s_packetState = kPacketState_StartByte;
+			}
+			else if ( tmp == packetType )
+			{
+				s_readPacket.packetType = packetType;
+				s_packetState = kPacketState_Length;
+				s_stateCnt = 0;
+			}
+			else
+			{
+				s_packetState = kFramingPacketStartByte;
+			}
+			break;
+		case kPacketState_Length:
+			s_readPacket.lengthInBytes[s_stateCnt++] = tmp;
+			if ( s_stateCnt >= 2 )
+			{
+				s_packetState = kPacketState_CRC;
+				s_stateCnt = 0;
+
+				packetLength = (uint16_t*)&s_writePacket.lengthInBytes[0];
+				if ( *packetLength > kPacket_MaxPayloadSize )
+				{
+					*packetLength = kPacket_MaxPayloadSize;
+				}
+			}
+			break;
+		case kPacketState_CRC:
+			s_readPacket.crc16[s_stateCnt++] = tmp;
+			if ( s_stateCnt >= 2 )
+			{
+				s_packetState = kPacketState_Payload;
+				s_stateCnt = 0;
+			}
+			break;
+
+		case kPacketState_Payload:
+			payloadStart[s_stateCnt++] = tmp;
+			if ( s_stateCnt >= *(uint16_t*)&s_readPacket.lengthInBytes[0] )
+			{
+				s_packetState = kPacketState_StartByte;
+				isPacketComplete = true;
+			}
+			break;
+	}
+
+	if ( isPacketComplete )
+	{
+		calculatedCrc = calculate_crc( &s_readPacket );
+		receivedCrc = *(uint16_t*)&s_readPacket.crc16[0];
+
+		if ( calculatedCrc == receivedCrc )
+		{
+			s_serialContext.isAckNeeded = true;
+			return kStatus_Success;
+		}
+		else
+		{
+			bl_hw_if_write( s_packet_nak, sizeof(s_packet_nak) );
+			return kStatus_Fail;
+		}
+	}
+	else
+	{
+		return kStatus_Busy;
+	}
+}
+
 status_t serial_packet_write(void)
 {
 	uint16_t packetLength;
@@ -186,8 +291,8 @@ status_t serial_packet_write(void)
 	crc16 = calculate_crc( &s_writePacket );
 	*(uint16_t*)&s_writePacket.crc16[0] = crc16;
 
-	bl_hw_if_write( (void*)&s_writePacket, 6 );
-	bl_hw_if_write( (void*)&s_writePacket.payload, packetLength );
+	bl_hw_if_write( (void*)&s_writePacket, 6 );	/* Write header */
+	bl_hw_if_write( (void*)&s_writePacket.payload, packetLength ); /* write payload */
 
 	// Wait ACK
 	startByte = read_byte();
@@ -406,121 +511,12 @@ void application_run(uint32_t sp, uint32_t pc)
 	__NOP();
 }
 
-static status_t serial_packet_read(uint8_t packetType)
-{
-	static int32_t s_packetState = kPacketState_StartByte;
-	static uint32_t s_stateCnt;
-	uint16_t calculatedCrc;
-	uint16_t receivedCrc;
-	uint16_t *packetLength;
-	uint8_t *payloadStart = (uint8_t*)&s_readPacket.payload[0];
-	bool isPacketComplete = false;
-	uint8_t tmp;
-
-	uint16_t packetLen = 0;
-
-	if ( s_serialContext.isAckNeeded )
-	{
-		s_serialContext.isAckNeeded = false;
-		bl_hw_if_write( s_packet_ack, sizeof(s_packet_ack) );
-	}
-
-	tmp = read_byte();
-	switch ( s_packetState )
-	{
-		case kPacketState_StartByte:
-			if ( tmp == kFramingPacketStartByte )
-			{
-				s_readPacket.startByte = kFramingPacketStartByte;
-				s_packetState = kPacketState_PacketTye;
-			}
-			break;
-
-		case kPacketState_PacketTye:
-			if ( tmp == kFramingPacketType_Ping )
-			{
-				// Send ping packet here.
-				bl_hw_if_write( (void*)s_pingPacket, sizeof(s_pingPacket) );
-				s_packetState = kPacketState_StartByte;
-			}
-			else if ( tmp == packetType )
-			{
-				s_readPacket.packetType = packetType;
-				s_packetState = kPacketState_Length;
-				s_stateCnt = 0;
-			}
-			else
-			{
-				s_packetState = kFramingPacketStartByte;
-			}
-			break;
-
-		case kPacketState_Length:
-			if ( s_stateCnt < 2 )
-			{
-				s_readPacket.lengthInBytes[s_stateCnt] = tmp;
-				s_stateCnt++;
-			}
-			else
-			{
-				s_packetState = kPacketState_CRC;
-				s_stateCnt = 0;
-			}
-			break;
-
-		case kPacketState_CRC:
-			if ( s_stateCnt < 2 )
-			{
-				s_readPacket.crc16[s_stateCnt] = tmp;
-				s_stateCnt++;
-			}
-			else
-			{
-				s_packetState = kPacketState_Payload;
-				s_stateCnt = 0;
-			}
-			break;
-
-		case kPacketState_Payload:
-			payloadStart[s_stateCnt++] = tmp;
-			if ( s_stateCnt >= *(uint16_t*)&s_readPacket.lengthInBytes[0] )
-			{
-				s_packetState = kPacketState_StartByte;
-				isPacketComplete = true;
-			}
-			break;
-	}
-
-	if ( isPacketComplete )
-	{
-		calculatedCrc = calculate_crc( &s_readPacket );
-		receivedCrc = *(uint16_t*)&s_readPacket.crc16[0];
-
-		if ( calculatedCrc == receivedCrc )
-		{
-			s_serialContext.isAckNeeded = true;
-			return kStatus_Success;
-		}
-		else
-		{
-//			bl_hw_if_write( s_packet_nak, sizeof(s_packet_nak) );
-			return kStatus_Fail;
-		}
-	}
-	else
-	{
-		return kStatus_Busy;
-	}
-
-}
-
 void bootloader_run(void)
 {
 	command_packet_t *commandPkt;
 	status_t status;
 	bool hasMoreData = false;
 	flash_init();
-	bl_ctx.state = kCommandPhase_Command;
 
 	while ( 1 )
 	{
@@ -529,13 +525,14 @@ void bootloader_run(void)
 		status = serial_packet_read( packetType );
 
 		if ( status != kStatus_Success )
+		{
 			continue;
-
-		int a = 0;
+		}
 
 		switch ( bl_ctx.state )
 		{
 			case kCommandPhase_Command:
+
 				commandPkt = (command_packet_t*)&s_readPacket.payload[0];
 				switch ( commandPkt->commandTag )
 				{
@@ -576,30 +573,26 @@ int main(void)
 	Clk_Init();
 
 	/*Initialize UART2 at 9600 bauds */
-	Uart_init();
+	Uart_Init(2, DEFAULT_SYSTEM_CLOCK, 9600);
 
 	/* Init hardware and stuff */
-	int initState = hardware_init();
+	hardware_init();
 
-	/* Initialize GPIO pins. E.g. led used to signal bootloader running*/
-	pins_init();
+	/* Initialize GPIO pins. E.g. led used to signal bootloader runing*/
+	//pins_init();
 
 	// Enter in in bootloader if defined button is pressed
-	ENB_BOOT = true; //READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
+	ENB_BOOT = 1;//READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
 	/* Debug serial *//*
 	while ( 1 )
 	{
 		uint8_t c = bl_hw_if_read_byte();
-		OUTPUT_SET(LED_PORT, LED_PIN);
-		const char *str = "Tarzaaaaaaaaaaaaaaaaaaaaaan!\r\n";
-		bl_hw_if_write(str, 30);
-		OUTPUT_CLEAR(LED_PORT, LED_PIN);
+		bl_hw_if_write(&c, 1);
 	}
 	//*/
 
 	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
-	//if ( stay_in_bootloader() )
 	{
 		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
 		bootloader_run();

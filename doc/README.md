@@ -1,6 +1,8 @@
 ## S9KEAZN64AMLH - Custom bootloader
 
-![S9KEAZN64AMLH pinmap](doc/pinmap.png)
+![S9KEAZN64AMLH pinmap](pinmap.png)
+
+![S9KEAZN64AMLH schematic](skeazn64.png)
 
 ![](doc/cpu.png)
 
