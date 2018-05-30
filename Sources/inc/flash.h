@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #include "derivative.h"
-#include "definitions.h"
+
 #include "bl_core.h"
 #include "bl_cfg.h"
 

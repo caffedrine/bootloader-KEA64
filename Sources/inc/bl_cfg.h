@@ -13,22 +13,18 @@
 #ifdef SKEAZ1284
 	#define ENB_BOOT_PIN	PTE4
 	#define ENB_BOOT_PORT	PTE
-#endif
-
-#ifdef SKEAZN642
-	#define ENB_BOOT_PIN	PTD0
-	#define ENB_BOOT_PORT	PTD
+#elif defined(SKEAZN642)
+	#define ENB_BOOT_PIN	PTE4
+	#define ENB_BOOT_PORT	PTE
 #endif
 
 /* Led will be TRUE (5V) when bootloader is running */
 #ifdef SKEAZ1284
 	#define LED_PIN 	PTH0
 	#define LED_PORT	PTH
-#endif
-
-#ifdef SKEAZN642
-	#define LED_PIN 	PTC0
-	#define LED_PORT	PTC
+#elif defined(SKEAZN642)
+	#define LED_PIN 	PTE0
+	#define LED_PORT	PTE
 #endif
 
 /****************************************************

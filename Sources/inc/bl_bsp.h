@@ -12,15 +12,53 @@
 
 #include "bl_cfg.h"
 #include "GPIO/GPIO.h"
-#include "UART/UART.h"
 
-int hardware_init(void)
+__STATIC_INLINE void Uart_init(void)
+{
+    uint16_t u16Sbr;
+    uint8_t u8Temp;
+
+	/* Enable the clock to the selected UART */
+    if (BL_UART == UART0)
+	{
+		SIM->SCGC |= SIM_SCGC_UART0_MASK;
+	}
+	else if (BL_UART == UART1)
+	{
+        SIM->SCGC |= SIM_SCGC_UART1_MASK;
+	}
+    else
+	{
+        SIM->SCGC |= SIM_SCGC_UART2_MASK;
+	}
+
+    /* Make sure that the transmitter and receiver are disabled while we
+     * change settings.
+     */
+    BL_UART->C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK );
+
+    /* Configure the UART for 8-bit mode, no parity */
+    BL_UART->C1 = 0;					//we need default settings so entire register is cleared
+
+    /* Calculate baud settings */
+    u16Sbr = ((( DEFAULT_SYSTEM_CLOCK / 2 )>>4) + (BL_UART_BAUDRATE>>1))/BL_UART_BAUDRATE;
+
+    /* Save off the current value of the UARTx_BDH except for the SBR field */
+    u8Temp = BL_UART->BDH & ~(UART_BDH_SBR_MASK);
+
+    BL_UART->BDH = u8Temp |  UART_BDH_SBR(u16Sbr >> 8);
+    BL_UART->BDL = 128;//(uint8_t)(u16Sbr & UART_BDL_SBR_MASK);								//!!!!!
+
+    /* Enable receiver and transmitter */
+    BL_UART->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+}
+
+__STATIC_INLINE int hardware_init(void)
 {
 	uint16_t err = 0x3000;
 	uint8_t clkDIV = 20000000L / 1000000L - 1;
 
-	/* enable stalling flash controller when flash is busy */
-	MCM_PLACR |= MCM_PLACR_ESFC_MASK;
+	MCM_PLACR |= MCM_PLACR_ESFC_MASK; 			/* enable stalling flash controller when flash is busy */
 
 	if ( !(FTMRH_FSTAT & FTMRH_FSTAT_CCIF_MASK) )
 	{
@@ -28,7 +66,8 @@ int hardware_init(void)
 		return (err);
 	}
 
-	/* initialize the flash clock to be within spec 1MHz */
+	/* initialize the flash clock to be within spec 1MHz 
+	 */
 	if ( !(FTMRH_FCLKDIV & FTMRH_FCLKDIV_FDIVLCK_MASK) )
 	{
 		/* FCLKDIV register is not locked */
@@ -40,6 +79,7 @@ int hardware_init(void)
 			return (err);
 		}
 		FTMRH_FCLKDIV = (FTMRH_FCLKDIV & ~(FTMRH_FCLKDIV_FDIV_MASK)) | FTMRH_FCLKDIV_FDIV( clkDIV );
+
 	}
 	else
 	{
@@ -52,27 +92,42 @@ int hardware_init(void)
 		}
 	}
 
+	/*
+	SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK
+	        | SIM_SCGC5_PORTB_MASK
+	        | SIM_SCGC5_PORTC_MASK
+	        | SIM_SCGC5_PORTD_MASK
+	        | SIM_SCGC5_PORTE_MASK;
+
+	// Set Clock divider
+	SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV1( 0 ) | SIM_CLKDIV1_OUTDIV2( 0 ) | SIM_CLKDIV1_OUTDIV3( 0 ) | SIM_CLKDIV1_OUTDIV4( 1 );
+
+	PORTD->PCR[6] = PORT_PCR_MUX( 3 ); // UART_RX
+	PORTD->PCR[7] = PORT_PCR_MUX( 3 ); // UART_TX
+	//*/
+
 	/* No error */
 	return 0;
 }
 
-void pins_init(void)
+__STATIC_INLINE void pins_init(void)
 {
 	// Init GPIO pin used to enter or not in bootloader
 	CONFIG_PIN_AS_GPIO( ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT );		// Button pin as input as it shall provide a digital value
 	ENABLE_INPUT( ENB_BOOT_PORT, ENB_BOOT_PIN );					// Enable input on button
-
-	// Indicator led
-	CONFIG_PIN_AS_GPIO( LED_PORT, LED_PIN, OUTPUT );				// Led pin as output as there is a LED
 	OUTPUT_CLEAR( LED_PORT, LED_PIN );								// Clear led pin at the beginning
+	CONFIG_PIN_AS_GPIO( LED_PORT, LED_PIN, OUTPUT );				// Led pin as output as there is a LED
+
+	// Other pins used as GPIO
 }
 
-bool stay_in_bootloader(void)
+__STATIC_INLINE bool stay_in_bootloader(void)
 {
 	uint32_t *vectorTable = (uint32_t*)APPLICATION_BASE;
 	uint32_t pc = vectorTable[1];
 	if ( pc < APPLICATION_BASE || pc > TARGET_FLASH_SIZE )
 	{
+		Uart_init();
 		return true;
 	}
 	else
@@ -81,25 +136,25 @@ bool stay_in_bootloader(void)
 	}
 }
 
-void bl_hw_if_write(const uint8_t *buffer, uint32_t length)
+__STATIC_INLINE void bl_hw_if_write(const uint8_t *buffer, uint32_t length)
 {
-	uint8_t bytesWritten = 0;
-
-	while(bytesWritten < length)
+	while ( length-- )
 	{
-		Uart_Write((BL_UART == UART0) ? 0 : ((BL_UART == UART1) ? 1 : 2), buffer, length, &bytesWritten);
+		while ( !(BL_UART->S1 & UART_S1_TDRE_MASK) );
+
+//		for ( int i = 0; i <= 2000; i++ )
+//			;						// This is devil!
+		(void)BL_UART->S1;	/* Read UART2_S1 register*/
+		BL_UART->D = *buffer++;
 	}
 }
 
-uint8_t bl_hw_if_read_byte(void)
+__STATIC_INLINE uint8_t bl_hw_if_read_byte(void)
 {
-	uint8_t tmpBytesRead = 0, c;
+	while ( !(BL_UART->S1 & UART_S1_RDRF_MASK) );
 
-	while(tmpBytesRead == 0)
-	{
-		Uart_Read((BL_UART == UART0) ? 0 : ((BL_UART == UART1) ? 1 : 2), &c, 1, &tmpBytesRead);
-	}
-	return c;
+	(void)BL_UART->S1;	/* Read UART2_S1 register*/
+	return BL_UART->D;	/* Return data */
 }
 
 #endif // __BL_BSP_H__

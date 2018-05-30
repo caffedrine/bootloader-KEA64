@@ -159,6 +159,9 @@ enum
 	kStatusMemoryRangeInvalid = 10200,
 };
 
+//! @brief Status typedef
+typedef int32_t status_t;
+
 void bootloader_data_sink(uint8_t byte);
 void bootloader_run(void);
 void application_run(uint32_t sp, uint32_t pc);

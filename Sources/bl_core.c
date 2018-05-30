@@ -9,17 +9,12 @@
 #include "bl_cfg.h"
 
 // Drivers
+#include "CLK/CLK.h"
 #include "CRC.h"
 #include "flash.h"
-#include "GPIO/GPIO.h"
-#include "CLK/CLK.h"
-#include "UART/UART.h"
 
 // Handle interrupts here
 #include "Events.h"
-
-// Common definitions
-#include "definitions.h"
 
 //   ____ ___  _   _ ____ _____ ____    _    _   _ _____ ____
 //  / ___/ _ \| \ | / ___|_   _/ ___|  / \  | \ | |_   _/ ___|
@@ -99,9 +94,7 @@ typedef struct
 
 
 /*****************************************************************************************
-
  Packet related definitions, functions and variables.
-
  ******************************************************************************************/
 static const uint8_t s_pingPacket[] = { kFramingPacketStartByte, kFramingPacketType_PingResponse, 0, 2, 1, 'P', 0, 0, 0xaa, 0xea };
 static const uint8_t s_packet_ack[] = { kFramingPacketStartByte, kFramingPacketType_Ack };
@@ -116,7 +109,6 @@ static uint8_t read_byte(void);
 static status_t serial_packet_read(uint8_t packetType);
 status_t serial_packet_write(void);
 uint16_t calculate_crc(serial_packet_t *packet);
-
 
 //	__     ___    ____  ____
 //	\ \   / / \  |  _ \/ ___|
@@ -228,7 +220,6 @@ static status_t serial_packet_read(uint8_t packetType)
 				s_stateCnt = 0;
 			}
 			break;
-
 		case kPacketState_Payload:
 			payloadStart[s_stateCnt++] = tmp;
 			if ( s_stateCnt >= *(uint16_t*)&s_readPacket.lengthInBytes[0] )
@@ -291,10 +282,9 @@ status_t serial_packet_write(void)
 	crc16 = calculate_crc( &s_writePacket );
 	*(uint16_t*)&s_writePacket.crc16[0] = crc16;
 
-	bl_hw_if_write( (void*)&s_writePacket, 6 );	/* Write header */
-	bl_hw_if_write( (void*)&s_writePacket.payload, packetLength ); /* write payload */
-
-	// Wait ACK
+	bl_hw_if_write( (void*)&s_writePacket, 6 );
+	bl_hw_if_write( (void*)&s_writePacket.payload, packetLength );
+// Wait ACK
 	startByte = read_byte();
 	packetType = read_byte();
 
@@ -525,14 +515,13 @@ void bootloader_run(void)
 		status = serial_packet_read( packetType );
 
 		if ( status != kStatus_Success )
-		{
 			continue;
-		}
+
+		int a = 0;
 
 		switch ( bl_ctx.state )
 		{
 			case kCommandPhase_Command:
-
 				commandPkt = (command_packet_t*)&s_readPacket.payload[0];
 				switch ( commandPkt->commandTag )
 				{
@@ -573,26 +562,30 @@ int main(void)
 	Clk_Init();
 
 	/*Initialize UART2 at 9600 bauds */
-	Uart_Init(2, DEFAULT_SYSTEM_CLOCK, 9600);
+	Uart_init();
 
 	/* Init hardware and stuff */
-	hardware_init();
+	int initState = hardware_init();
 
-	/* Initialize GPIO pins. E.g. led used to signal bootloader runing*/
-	//pins_init();
+	/* Initialize GPIO pins. E.g. led used to signal bootloader running*/
+	pins_init();
 
 	// Enter in in bootloader if defined button is pressed
-	ENB_BOOT = 1;//READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
+	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
 	/* Debug serial *//*
 	while ( 1 )
 	{
 		uint8_t c = bl_hw_if_read_byte();
-		bl_hw_if_write(&c, 1);
+		OUTPUT_SET(LED_PORT, LED_PIN);
+		const char *str = "Tarzaaaaaaaaaaaaaaaaaaaaaan!\r\n";
+		bl_hw_if_write(str, 30);
+		OUTPUT_CLEAR(LED_PORT, LED_PIN);
 	}
 	//*/
 
 	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
+	//if ( stay_in_bootloader() )
 	{
 		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
 		bootloader_run();
