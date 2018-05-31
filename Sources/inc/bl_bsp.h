@@ -13,7 +13,7 @@
 #include "bl_cfg.h"
 #include "GPIO/GPIO.h"
 
-__STATIC_INLINE void Uart_init(void)
+void Uart_init(void)
 {
     uint16_t u16Sbr;
     uint8_t u8Temp;
@@ -50,10 +50,11 @@ __STATIC_INLINE void Uart_init(void)
     BL_UART->BDL = 128;//(uint8_t)(u16Sbr & UART_BDL_SBR_MASK);								//!!!!!
 
     /* Enable receiver and transmitter */
-    BL_UART->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );
+    BL_UART->C2 |= UART_C2_TE_MASK;
+    BL_UART->C2 |= UART_C2_RE_MASK;
 }
 
-__STATIC_INLINE int hardware_init(void)
+int hardware_init(void)
 {
 	uint16_t err = 0x3000;
 	uint8_t clkDIV = 20000000L / 1000000L - 1;
@@ -110,7 +111,7 @@ __STATIC_INLINE int hardware_init(void)
 	return 0;
 }
 
-__STATIC_INLINE void pins_init(void)
+void pins_init(void)
 {
 	/* ENB_BOOT PIN */
 	CONFIG_PIN_AS_GPIO( ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT );		// Button pin as input as it shall provide a digital value
@@ -121,7 +122,7 @@ __STATIC_INLINE void pins_init(void)
 	OUTPUT_CLEAR( LED_PORT, LED_PIN );
 }
 
-__STATIC_INLINE bool stay_in_bootloader(void)
+bool stay_in_bootloader(void)
 {
 	uint32_t *vectorTable = (uint32_t*)APPLICATION_BASE;
 	uint32_t pc = vectorTable[1];
@@ -135,28 +136,39 @@ __STATIC_INLINE bool stay_in_bootloader(void)
 	}
 }
 
-__STATIC_INLINE void bl_hw_if_write(const uint8_t *buffer, uint32_t length)
+void bl_hw_if_write(const uint8_t *buffer, uint32_t length)
 {
+	/* Enable TX */
+	//BL_UART->C2 |= UART_C2_TE_MASK;
+
 	while ( length-- )
 	{
 		while ( !(BL_UART->S1 & UART_S1_TDRE_MASK) );
 
-		for(int i = 0; i <= 5000; i++);
-
 		(void)BL_UART->S1;	/* Read UART2_S1 register*/
 		BL_UART->D = *buffer++;
 	}
+
+	/* Disable TX */
+	//BL_UART->C2 &= ~UART_C2_TE_MASK;
 }
 
-__STATIC_INLINE uint8_t bl_hw_if_read_byte(void)
+uint8_t bl_hw_if_read_byte(void)
 {
+	/* Enable RX */
+    BL_UART->C2 |= UART_C2_RE_MASK;
+
+	uint8_t c;
 	while ( !(BL_UART->S1 & UART_S1_RDRF_MASK) );
-
-	for(int i = 0; i <= 500; i++);
-
-
 	(void)BL_UART->S1;	/* Read UART2_S1 register*/
-	return BL_UART->D;	/* Return data */
+	c = BL_UART->D;	/* Return data */
+
+	// Clear internal buffers
+
+	/* Disable RX */
+   BL_UART->C2 &= ~UART_C2_RE_MASK;
+
+	return c;
 }
 
 #endif // __BL_BSP_H__

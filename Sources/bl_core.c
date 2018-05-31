@@ -570,13 +570,12 @@ int main(void)
 	// Enter in in bootloader if defined button is pressed
 	_Bool ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
-	/* Debug serial *//*
+	//* Debug serial *//*
 	while ( 1 )
 	{
 		uint8_t c = bl_hw_if_read_byte();
 		OUTPUT_SET(LED_PORT, LED_PIN);
-		const char *str = "Tarzaaaaaaaaaaaaaaaaaaaaaan!\r\n";
-		bl_hw_if_write(str, 30);
+		bl_hw_if_write(&c, 1);
 		OUTPUT_CLEAR(LED_PORT, LED_PIN);
 	}
 	//*/

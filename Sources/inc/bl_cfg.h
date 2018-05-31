@@ -1,6 +1,8 @@
 #ifndef __BL_CFG_H__
 #define __BL_CFG_H__
 
+#include "derivative.h"
+
 /* Base address of user application */
 #define APPLICATION_BASE		0x2000UL
 
