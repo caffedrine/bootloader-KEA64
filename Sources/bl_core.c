@@ -9,6 +9,7 @@
 #include "bl_cfg.h"
 
 // Drivers
+#include "UART/UART.h"
 #include "CLK/CLK.h"
 #include "CRC.h"
 #include "flash.h"
@@ -117,8 +118,6 @@ uint16_t calculate_crc(serial_packet_t *packet);
 //	   \_/_/   \_\_| \_\____/
 
 static bootloader_context_t bl_ctx;
-static _Bool ENB_BOOT = 0;						// Load user application by default
-
 //	  ____ ___  ____  _____
 //	 / ___/ _ \|  _ \| ____|
 //	| |  | | | | | | |  _|
@@ -490,14 +489,14 @@ void application_run(uint32_t sp, uint32_t pc)
 	s_applicationEntry = pc;
 	s_application = (app_entry_t)s_applicationEntry;
 
-// Change MSP and PSP
+	// Change MSP and PSP
 	__set_MSP( s_stackPointer );
 	__set_PSP( s_stackPointer );
 
-// Jump to application
+	// Jump to application
 	s_application();
 
-// Should never reach here.
+	// Should never reach here.
 	__NOP();
 }
 
@@ -516,8 +515,6 @@ void bootloader_run(void)
 
 		if ( status != kStatus_Success )
 			continue;
-
-		int a = 0;
 
 		switch ( bl_ctx.state )
 		{
@@ -558,10 +555,10 @@ void bootloader_run(void)
 
 int main(void)
 {
-	/* Configure clocks to run at 20 Mhz */
+	/* Configure clocks to run at 40 Mhz */
 	Clk_Init();
 
-	/*Initialize UART2 at 9600 bauds */
+	/*Initialize UART channel */
 	Uart_init();
 
 	/* Init hardware and stuff */
@@ -571,7 +568,7 @@ int main(void)
 	pins_init();
 
 	// Enter in in bootloader if defined button is pressed
-	ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
+	_Bool ENB_BOOT = READ_INPUT(ENB_BOOT_PORT, ENB_BOOT_PIN);			// read ENB_BOOT flag
 
 	/* Debug serial *//*
 	while ( 1 )
@@ -585,7 +582,6 @@ int main(void)
 	//*/
 
 	if ( ENB_BOOT == 1 ) //&& stay_in_bootloader() )
-	//if ( stay_in_bootloader() )
 	{
 		OUTPUT_SET(LED_PORT, LED_PIN);		// signal bootloader running by turning on led set
 		bootloader_run();

@@ -112,13 +112,13 @@ __STATIC_INLINE int hardware_init(void)
 
 __STATIC_INLINE void pins_init(void)
 {
-	// Init GPIO pin used to enter or not in bootloader
+	/* ENB_BOOT PIN */
 	CONFIG_PIN_AS_GPIO( ENB_BOOT_PORT, ENB_BOOT_PIN, INPUT );		// Button pin as input as it shall provide a digital value
 	ENABLE_INPUT( ENB_BOOT_PORT, ENB_BOOT_PIN );					// Enable input on button
-	OUTPUT_CLEAR( LED_PORT, LED_PIN );								// Clear led pin at the beginning
-	CONFIG_PIN_AS_GPIO( LED_PORT, LED_PIN, OUTPUT );				// Led pin as output as there is a LED
 
-	// Other pins used as GPIO
+	/* Signalizing LED */
+	CONFIG_PIN_AS_GPIO( LED_PORT, LED_PIN, OUTPUT );				// Led pin as output
+	OUTPUT_CLEAR( LED_PORT, LED_PIN );
 }
 
 __STATIC_INLINE bool stay_in_bootloader(void)
@@ -127,7 +127,6 @@ __STATIC_INLINE bool stay_in_bootloader(void)
 	uint32_t pc = vectorTable[1];
 	if ( pc < APPLICATION_BASE || pc > TARGET_FLASH_SIZE )
 	{
-		Uart_init();
 		return true;
 	}
 	else
@@ -142,8 +141,8 @@ __STATIC_INLINE void bl_hw_if_write(const uint8_t *buffer, uint32_t length)
 	{
 		while ( !(BL_UART->S1 & UART_S1_TDRE_MASK) );
 
-//		for ( int i = 0; i <= 2000; i++ )
-//			;						// This is devil!
+		for(int i = 0; i <= 5000; i++);
+
 		(void)BL_UART->S1;	/* Read UART2_S1 register*/
 		BL_UART->D = *buffer++;
 	}
@@ -152,6 +151,9 @@ __STATIC_INLINE void bl_hw_if_write(const uint8_t *buffer, uint32_t length)
 __STATIC_INLINE uint8_t bl_hw_if_read_byte(void)
 {
 	while ( !(BL_UART->S1 & UART_S1_RDRF_MASK) );
+
+	for(int i = 0; i <= 500; i++);
+
 
 	(void)BL_UART->S1;	/* Read UART2_S1 register*/
 	return BL_UART->D;	/* Return data */

@@ -3,10 +3,10 @@
 
 #ifdef SKEAZ1284
 	#include "SKEAZ1284.h"
-	// PINSEL translation
+
+	/* Translations for fixing compatibility issues */
 	#define SIM_PINSEL	SIM_PINSEL_REG(SIM)
 
-	// Translations
 	#define FTMRH						FTMRE
 	#define FTMRH_FSTAT 				FTMRE_FSTAT
 	#define FTMRH_FSTAT_CCIF_MASK		FTMRE_FSTAT_CCIF_MASK
@@ -20,4 +20,10 @@
 
 #ifdef SKEAZN642
 	#include "SKEAZN642.h"
+
+	/* Translations for fixing compatibility issues */
+	#define PUE0	PUEL
+	#define PUE1	PUEH
+	#define PUE2	PUEH		//! !!!
+
 #endif

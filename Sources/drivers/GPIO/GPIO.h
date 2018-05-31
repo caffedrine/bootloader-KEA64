@@ -109,7 +109,11 @@
  * 
  **********************************************************/
 #define OUTPUT_SET(port,port_pin)					XOUTPUT_SET(port,port_pin)
-#define XOUTPUT_SET(port,port_pin)					port->PCOR |=(1<<port_pin)
+#ifdef SKEAZN642
+	#define XOUTPUT_SET(port,port_pin)					port->PSOR |=(1<<port_pin)
+#else
+	#define XOUTPUT_SET(port,port_pin)					port->PCOR |=(1<<port_pin)
+#endif
 
 /***********************************************************
  * 
@@ -117,8 +121,11 @@
  * 
  **********************************************************/
 #define OUTPUT_CLEAR(port,port_pin)					XOUTPUT_CLEAR(port,port_pin)		
-#define XOUTPUT_CLEAR(port,port_pin)				port->PSOR |=(1<<port_pin)
-
+#ifdef SKEAZN642
+	#define XOUTPUT_CLEAR(port,port_pin)					port->PCOR |=(1<<port_pin)
+#else
+	#define XOUTPUT_CLEAR(port,port_pin)					port->PSOR |=(1<<port_pin)
+#endif
 /***********************************************************
  * 
  * Output toggle macro
