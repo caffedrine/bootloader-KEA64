@@ -13,6 +13,7 @@ ASM_SRCS :=
 CXX_SRCS := 
 C++_SRCS := 
 CC_SRCS := 
+SECONDARY_SIZE := 
 C++_DEPS := 
 OBJS := 
 C_DEPS := 

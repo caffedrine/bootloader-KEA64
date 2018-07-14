@@ -46,32 +46,41 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 SECONDARY_FLASH += \
-KEA64_UART_Bootloader.bin \
+SKEAZN642_Bootloader.bin \
+
+SECONDARY_SIZE += \
+SKEAZN642_Bootloader.siz \
 
 
 # All Target
-all: KEA64_UART_Bootloader.elf secondary-outputs
+all: SKEAZN642_Bootloader.elf secondary-outputs
 
 # Tool invocations
-KEA64_UART_Bootloader.elf: $(OBJS) $(USER_OBJS)
+SKEAZN642_Bootloader.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM GNU C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "SKEAZN64xxx2_flash.ld" -Xlinker --gc-sections -L"C:/Workspaces/KDS/BL_Alpha/Project_Settings/SKEAZN642/Linker_Files" -Wl,-Map,"KEA64_UART_Bootloader.map" -specs=nano.specs -specs=nosys.specs -o "KEA64_UART_Bootloader.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "SKEAZN64xxx2_flash.ld" -Xlinker --gc-sections -L"/home/curiosul/Workspaces/KDS/bootloader-S9KEAZN64AMLH/Project_Settings/SKEAZN642/Linker_Files" -Wl,-Map,"SKEAZN642_Bootloader.map" -specs=nano.specs -specs=nosys.specs -o "SKEAZN642_Bootloader.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-KEA64_UART_Bootloader.bin: KEA64_UART_Bootloader.elf
+SKEAZN642_Bootloader.bin: SKEAZN642_Bootloader.elf
 	@echo 'Invoking: Cross ARM GNU Create Flash Image'
-	arm-none-eabi-objcopy -O binary "KEA64_UART_Bootloader.elf"  "KEA64_UART_Bootloader.bin"
+	arm-none-eabi-objcopy -O binary "SKEAZN642_Bootloader.elf"  "SKEAZN642_Bootloader.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+SKEAZN642_Bootloader.siz: SKEAZN642_Bootloader.elf
+	@echo 'Invoking: Cross ARM GNU Print Size'
+	arm-none-eabi-size --format=berkeley "SKEAZN642_Bootloader.elf"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(ASM_DEPS)$(CC_DEPS)$(SECONDARY_FLASH)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS)$(S_UPPER_DEPS) KEA64_UART_Bootloader.elf
+	-$(RM) $(SECONDARY_SIZE)$(C++_DEPS)$(OBJS)$(C_DEPS)$(ASM_DEPS)$(CC_DEPS)$(SECONDARY_FLASH)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS)$(S_UPPER_DEPS) SKEAZN642_Bootloader.elf
 	-@echo ' '
 
-secondary-outputs: $(SECONDARY_FLASH)
+secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_SIZE)
 
 .PHONY: all clean dependents
 .SECONDARY:
