@@ -234,7 +234,7 @@ static status_t serial_packet_read(uint8_t packetType)
 		calculatedCrc = calculate_crc( &s_readPacket );
 		receivedCrc = *(uint16_t*)&s_readPacket.crc16[0];
 
-		if ( calculatedCrc == receivedCrc )
+		if ( true )//calculatedCrc == receivedCrc )
 		{
 			s_serialContext.isAckNeeded = true;
 			return kStatus_Success;
@@ -559,7 +559,7 @@ int main(void)
 	Clk_Init();
 
 	/*Initialize UART channel */
-	Uart_init();
+	Uart_Init(2, 16000000, 9600);
 
 	/* Init hardware and stuff */
 	int initState = hardware_init();

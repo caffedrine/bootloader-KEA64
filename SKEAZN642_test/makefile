@@ -60,7 +60,7 @@ all: SKEAZN642_Bootloader_test.elf secondary-outputs
 SKEAZN642_Bootloader_test.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM GNU C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "SKEAZN64xxx2_flash.ld" -Xlinker --gc-sections -L"/home/curiosul/Workspaces/KDS/bootloader-S9KEAZN64AMLH/Project_Settings/SKEAZN642/Linker_Files" -Wl,-Map,"SKEAZN642_Bootloader_test.map" -specs=nano.specs -specs=nosys.specs -o "SKEAZN642_Bootloader_test.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "SKEAZN64xxx2_flash.ld" -Xlinker --gc-sections -L"/home/curiosul/Workspaces/KDS/bootloader-KEA64/Project_Settings/SKEAZN642/Linker_Files" -Wl,-Map,"SKEAZN642_Bootloader_test.map" -specs=nano.specs -specs=nosys.specs -o "SKEAZN642_Bootloader_test.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
