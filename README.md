@@ -1,7 +1,7 @@
 ## NXP KEA64 - KBOOT custom bootloader
 
   1. Introduction: [intro.md](doc/intro.md)
-  2. Target Projects: [](doc/target_projects.md)
+  2. Target Projects: [target_projects.md](doc/target_projects.md)
 
 
 ## CPU Info
